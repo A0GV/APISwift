@@ -331,14 +331,15 @@ def get_weekly_transfer_status():
 if __name__ == '__main__':
     import json
     mssql_params = {}
-    mssql_params['DB_HOST'] = '100.80.80.7' #'10.14.255.41' 
-    mssql_params['DB_NAME'] = 'noca'
+    mssql_params['DB_HOST'] = '100.80.80.7' #'10.14.255.41 es la IP para acceder desde fuera' 
+    mssql_params['DB_NAME'] = 'nova'
     mssql_params['DB_USER'] = 'SA'
     mssql_params['DB_PASSWORD'] = 'Shakira123.'
     cnx = mssql_connect(mssql_params)
+    
     # Do your thing
     try:
-        rx = sql_read_all('users')
+        rx = sql_read_all('Socios')
         print(json.dumps(rx, indent=4))
         input("press Enter to continue...")
         rx = read_user_data('users', 'hugo')
