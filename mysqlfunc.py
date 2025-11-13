@@ -195,6 +195,139 @@ def sql_delete_where(table_name, d_where):
     except Exception as e:
         raise TypeError("sql_delete_where:%s" % e)
 
+def get_demand_hours():
+    import pymssql
+    global cnx, mssql_params
+    query = """
+    SELECT DATEPART(HOUR, dtFechaInicio) AS Hour, COUNT(*) AS Demand
+    FROM Viaje
+    GROUP BY DATEPART(HOUR, dtFechaInicio)
+    ORDER BY Demand DESC
+    """
+    try:
+        try:
+            cursor = cnx.cursor(as_dict=True)
+            cursor.execute(query)
+        except pymssql._pymssql.InterfaceError:
+            print("reconnecting...")
+            cnx = mssql_connect(mssql_params)
+            cursor = cnx.cursor(as_dict=True)
+            cursor.execute(query)
+        results = cursor.fetchall()
+        cursor.close()
+        return [{"Hour": row['Hour'], "Demand": row['Demand']} for row in results]
+    except Exception as e:
+        raise TypeError("get_demand_hours: %s" % e)
+
+def get_operators_with_most_transfers():
+    import pymssql
+    global cnx, mssql_params
+    query = """
+    SELECT u.IdUsuario, u.vcNombre, u.vcApellidoPaterno, u.vcApellidoMaterno, COUNT(t.IdTraslado) AS TotalTransfers
+    FROM Usuarios u
+    INNER JOIN Traslado t ON u.IdUsuario = t.IdUsuarioOperador
+    GROUP BY u.IdUsuario, u.vcNombre, u.vcApellidoPaterno, u.vcApellidoMaterno
+    ORDER BY TotalTransfers DESC
+    """
+    try:
+        try:
+            cursor = cnx.cursor(as_dict=True)
+            cursor.execute(query)
+        except pymssql._pymssql.InterfaceError:
+            print("reconnecting...")
+            cnx = mssql_connect(mssql_params)
+            cursor = cnx.cursor(as_dict=True)
+            cursor.execute(query)
+        results = cursor.fetchall()
+        cursor.close()
+        return [
+            {
+                "IdUsuario": row['IdUsuario'],
+                "Nombre": row['vcNombre'],
+                "ApellidoPaterno": row['vcApellidoPaterno'],
+                "ApellidoMaterno": row['vcApellidoMaterno'],
+                "TotalTransfers": row['TotalTransfers']
+            }
+            for row in results
+        ]
+    except Exception as e:
+        raise TypeError(f"get_operators_with_most_transfers: {e}")
+
+def get_monthly_transfer_percentages():
+    import pymssql
+    global cnx, mssql_params
+    query = """
+    SELECT 
+        MONTH(t.dtFechaInicio) AS Month, 
+        YEAR(t.dtFechaInicio) AS Year,
+        SUM(CASE WHEN e.vcEstatus = 'Terminado' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS CompletedPercentage,
+        SUM(CASE WHEN e.vcEstatus = 'Cancelado' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS CanceledPercentage
+    FROM Traslado tr
+    INNER JOIN Estatus e ON tr.IdEstatus = e.IdEstatus
+    INNER JOIN Viaje t ON tr.IdTraslado = t.IdTraslado
+    GROUP BY YEAR(t.dtFechaInicio), MONTH(t.dtFechaInicio)
+    ORDER BY Year, Month
+    """
+    try:
+        try:
+            cursor = cnx.cursor(as_dict=True)
+            cursor.execute(query)
+        except pymssql._pymssql.InterfaceError:
+            print("reconnecting...")
+            cnx = mssql_connect(mssql_params)
+            cursor = cnx.cursor(as_dict=True)
+            cursor.execute(query)
+        results = cursor.fetchall()
+        cursor.close()
+        return [
+            {
+                "Year": row['Year'],
+                "Month": row['Month'],
+                "CompletedPercentage": row['CompletedPercentage'],
+                "CanceledPercentage": row['CanceledPercentage']
+            }
+            for row in results
+        ]
+    except Exception as e:
+        raise TypeError(f"get_monthly_transfer_percentages: {e}")
+
+def get_weekly_transfer_status():
+    import pymssql
+    global cnx, mssql_params
+    query = """
+    SELECT 
+        DATENAME(WEEKDAY, t.dtFechaInicio) AS DayOfWeek,
+        e.vcEstatus AS Status,
+        COUNT(*) AS Total
+    FROM Traslado tr
+    INNER JOIN Estatus e ON tr.IdEstatus = e.IdEstatus
+    INNER JOIN Viaje t ON tr.IdTraslado = t.IdTraslado
+    WHERE t.dtFechaInicio >= DATEADD(DAY, -7, GETDATE())
+    GROUP BY DATENAME(WEEKDAY, t.dtFechaInicio), e.vcEstatus
+    ORDER BY DayOfWeek, Total DESC
+    """
+    try:
+        try:
+            cursor = cnx.cursor(as_dict=True)
+            cursor.execute(query)
+        except pymssql._pymssql.InterfaceError:
+            print("reconnecting...")
+            cnx = mssql_connect(mssql_params)
+            cursor = cnx.cursor(as_dict=True)
+            cursor.execute(query)
+        results = cursor.fetchall()
+        cursor.close()
+        return [
+            {
+                "DayOfWeek": row['DayOfWeek'],
+                "Status": row['Status'],
+                "Total": row['Total']
+            }
+            for row in results
+        ]
+    except Exception as e:
+        raise TypeError(f"get_weekly_transfer_status: {e}")
+
 if __name__ == '__main__':
     import json
     mssql_params = {}

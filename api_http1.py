@@ -5,7 +5,7 @@ import mysqlfunc as MSSql
 
 # Connect to mssql dB from start
 mssql_params = {}
-mssql_params['DB_HOST'] = '100.80.80.7'
+mssql_params['DB_HOST'] = 'localhost'
 mssql_params['DB_NAME'] = 'nova'
 mssql_params['DB_USER'] = 'SA'
 mssql_params['DB_PASSWORD'] = 'Shakira123.'
@@ -55,6 +55,42 @@ def crud_delete():
     d_where = {'username': d['username']}
     MSSql.sql_delete_where('users', d_where)
     return make_response(jsonify('ok'))
+
+@app.route("/demand/hours", methods=['GET'])
+def demand_hours():
+    try:
+        # Llamar a la función de mysqlfunc para obtener los horarios con mayor demanda
+        results = MSSql.get_demand_hours()
+        return make_response(jsonify(results))
+    except Exception as e:
+        return make_response(jsonify({"error": str(e)}), 500)
+
+@app.route("/operators/most-transfers", methods=['GET'])
+def operators_most_transfers():
+    try:
+        # Llamar a la función de mysqlfunc para obtener los operadores con más traslados
+        results = MSSql.get_operators_with_most_transfers()
+        return make_response(jsonify(results))
+    except Exception as e:
+        return make_response(jsonify({"error": str(e)}), 500)
+
+@app.route("/transfers/monthly-percentages", methods=['GET'])
+def monthly_transfer_percentages():
+    try:
+        # Llamar a la función de mysqlfunc para obtener los porcentajes mensuales de traslados
+        results = MSSql.get_monthly_transfer_percentages()
+        return make_response(jsonify(results))
+    except Exception as e:
+        return make_response(jsonify({"error": str(e)}), 500)
+
+@app.route("/transfers/weekly-status", methods=['GET'])
+def weekly_transfer_status():
+    try:
+        # Llamar a la función de mysqlfunc para obtener el estado semanal de los traslados
+        results = MSSql.get_weekly_transfer_status()
+        return make_response(jsonify(results))
+    except Exception as e:
+        return make_response(jsonify({"error": str(e)}), 500)
 
 if __name__ == '__main__':
     print ("Running API...")
