@@ -327,6 +327,133 @@ def get_weekly_transfer_status():
         ]
     except Exception as e:
         raise TypeError(f"get_weekly_transfer_status: {e}")
+    
+def get_ambulancias_disponibles(fecha_inicio, fecha_fin):
+    import pymssql
+    global cnx, mssql_params
+    query = """
+        SELECT * FROM Ambulancia 
+        WHERE IdAmbulancia NOT IN (
+            SELECT IdAmbulancia FROM Viaje 
+            WHERE (dtFechaInicio < '%s' AND dtFechaFin > '%s')
+        )
+    """ % (fecha_fin, fecha_inicio)
+    
+    try:
+        try:
+            cursor = cnx.cursor(as_dict=True)
+            cursor.execute(query)
+        except pymssql._pymssql.InterfaceError:
+            print("reconnecting...")
+            cnx = mssql_connect(mssql_params)
+            cursor = cnx.cursor(as_dict=True)
+            cursor.execute(query)
+        results = cursor.fetchall()
+        cursor.close()
+        return results
+    except Exception as e:
+        raise TypeError("get_ambulancias_disponibles: %s" % e)
+
+
+def get_tipo_ambulancia_por_id(idAmbulancia):
+    import pymssql
+    global cnx, mssql_params
+    query = """
+        SELECT ta.* 
+        FROM tipoAmbulancia ta
+        INNER JOIN Ambulancia a ON ta.IdTipoAmb = a.IdTipoAmb
+        WHERE a.IdAmbulancia = %d
+    """ % idAmbulancia
+    
+    try:
+        try:
+            cursor = cnx.cursor(as_dict=True)
+            cursor.execute(query)
+        except pymssql._pymssql.InterfaceError:
+            print("reconnecting...")
+            cnx = mssql_connect(mssql_params)
+            cursor = cnx.cursor(as_dict=True)
+            cursor.execute(query)
+        result = cursor.fetchone()
+        cursor.close()
+        return result
+    except Exception as e:
+        raise TypeError("get_tipo_ambulancia_por_id: %s" % e)
+
+
+def get_proximo_numero_solicitud():
+    import pymssql
+    global cnx, mssql_params
+    query = "SELECT MAX(IdTraslado) as ultimoId FROM Traslado"
+    
+    try:
+        try:
+            cursor = cnx.cursor(as_dict=True)
+            cursor.execute(query)
+        except pymssql._pymssql.InterfaceError:
+            print("reconnecting...")
+            cnx = mssql_connect(mssql_params)
+            cursor = cnx.cursor(as_dict=True)
+            cursor.execute(query)
+        result = cursor.fetchone()
+        cursor.close()
+        
+        # Si no hay traslados, empezar en 1, si no, sumar 1 al último
+        ultimo_id = result['ultimoId'] if result['ultimoId'] is not None else 0
+        proximo_numero = ultimo_id + 1
+        
+        return proximo_numero
+    except Exception as e:
+        raise TypeError("get_proximo_numero_solicitud: %s" % e)
+
+
+def crear_solicitud_completa(data):
+    import pymssql
+    global cnx, mssql_params
+    
+    try:
+        # Insertar en Traslado
+        traslado_data = {
+            'IdUsuarioOperador': data['IdUsuarioOperador'],
+            'IdNumeroSocio': data['IdNumeroSocio'],
+            'IdTipoTraslado': data['IdTipoTraslado'],
+            'IdUbiOrigen': data['IdUbiOrigen'],
+            'IdUbiDest': data['IdUbiDest'],
+            'vcRazon': data['vcRazon'],
+            'IdEstatus': 1  # Siempre empieza como "Solicitado"
+        }
+        
+        id_traslado = sql_insert_row_into('Traslado', traslado_data)
+        
+        if not id_traslado:
+            raise Exception('No se pudo crear el traslado')
+        
+        # Insertar en Viaje
+        viaje_data = {
+            'IdUsuarioCoord': data['IdUsuarioCoord'],
+            'dtFechaInicio': data['dtFechaInicio'],
+            'dtFechaFin': data['dtFechaFin'],
+            'IdAmbulancia': data['IdAmbulancia'],
+            'fKmInicio': None,
+            'fKmFinal': None,
+            'IdTraslado': id_traslado,
+            'IdNumeroSocio': data['IdNumeroSocio']
+        }
+        
+        id_viaje = sql_insert_row_into('Viaje', viaje_data)
+        
+        if not id_viaje:
+            raise Exception('No se pudo crear el viaje')
+        
+        # Retornar resultado
+        return {
+            'IdTraslado': int(id_traslado),
+            'IdViaje': int(id_viaje),
+            'message': 'Solicitud creada exitosamente'
+        }
+        
+    except Exception as e:
+        raise TypeError("crear_solicitud_completa: %s" % e)
 
 if __name__ == '__main__':
     import json
