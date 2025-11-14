@@ -269,35 +269,23 @@ def viajekm_update():
 Endpoints de traslados - Cristian Luque
 """
 
+def queryParams(*claves):
+    params = {}
+    for clave in claves:
+        if request.args.get(clave) is not None:
+            params[clave] = request.args.get(clave)
+    return params
+
 @app.route("/traslados", methods=['GET'])
 def traslados():
-    initDate = request.args.get('fechaInit', None)
-    finalDate = request.args.get('fechaFin', None)
-    state = request.args.get('estado', None)
-    operator = request.args.get('operador', None)
-    patient = request.args.get('paciente', None)
-    nAmbulance = request.args.get('idAmbulancia', None)
-
-    params = {}
-
-    if initDate is not None:
-        params['fechaInit'] = initDate
-    if finalDate is not None:
-        params['fechaFin'] = finalDate
-    if state is not None:
-        params['estado'] = state
-    if patient is not None:
-        params['paciente'] = patient
-    if operator is not None:
-        params['operador'] = operator
-    if nAmbulance is not None:
-        params['idAmbulancia'] = nAmbulance
+    params = queryParams('fechaInit', 'fechaFin', 'estado', 'operador', 'paciente', 'idAmbulancia')
 
     try:
         results = MSSql.get_traslados(params)
         return make_response(jsonify(results))
     except Exception as e:
         return make_response(jsonify({"error": str(e)}), 500)
+    
     
 #Sacar el traslado por el dia
     
