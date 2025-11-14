@@ -112,7 +112,7 @@ def weekly_transfer_status():
 
 
 # Moni new endpoint to just get the number of last data
-# Call /viaje/kmAmbPrev?IdAmbulancia=2 change the 2 tho
+# Call /viaje/kmAmbPrev?IdAmbulancia=1 change the 1 tho
 @app.route("/viaje/kmAmbPrev", methods=['GET'])
 def kmAmbPrev():
     IdAmbulancia = request.args.get('IdAmbulancia', type=int)
