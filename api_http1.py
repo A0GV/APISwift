@@ -2,10 +2,11 @@ from flask import Flask, jsonify, make_response, request, send_file
 import json
 import sys
 import mysqlfunc as MSSql
+import viajeTrasladoSocioUbi as VTSU
 
 # Connect to mssql dB from start
 mssql_params = {}
-mssql_params['DB_HOST'] = 'localhost'
+mssql_params['DB_HOST'] = '100.80.80.7'
 mssql_params['DB_NAME'] = 'nova'
 mssql_params['DB_USER'] = 'SA'
 mssql_params['DB_PASSWORD'] = 'Shakira123.'
@@ -15,6 +16,14 @@ try:
     MSSql.mssql_params = mssql_params
 except Exception as e:
     print("Cannot connect to mssql server!: {}".format(e))
+    sys.exit()
+        
+# Connect VTSU Moni
+try:
+    VTSU.mssql_params = mssql_params # Para reconnect
+    VTSU.cnx = VTSU.mssql_connect(mssql_params)
+except Exception as e:
+    print("Cannot connect to vtsu server!: {}".format(e))
     sys.exit()
 
 app = Flask(__name__)
@@ -93,6 +102,20 @@ def weekly_transfer_status():
     except Exception as e:
         return make_response(jsonify({"error": str(e)}), 500)
 
+
+# Moni new endpoint to just get the number of last data
+# Call /viaje/kmAmbPrev?IdAmbulancia=2 change the 2 tho
+@app.route("/viaje/kmAmbPrev", methods=['GET'])
+def kmAmbPrev():
+    IdAmbulancia = request.args.get('IdAmbulancia', type=int)
+    if IdAmbulancia is None:
+        return make_response(jsonify({"error": "IdAmbulancia query parameter is required"}), 400)
+    try:
+        # Uses rows entcs como lista de diccionarios, can get full row o nomas los km como rows[0]['fKmFinal]
+        rows = VTSU.sql_read_last_amt_km(IdAmbulancia)
+        return make_response(jsonify(rows))
+    except Exception as e:
+        return make_response(jsonify({"error": str(e)}), 500)
 
 # ENDPOINTS PARA SOLICITAR VIAJE
 
@@ -231,6 +254,7 @@ def viajekm_update():
     d_where = {'IdTraslado': d['IdTraslado']}
     MSSql.sql_update_where('Viaje', d_field, d_where)
     return make_response(jsonify('ok'))
+
 
 if __name__ == '__main__':
     print ("Running API...")
