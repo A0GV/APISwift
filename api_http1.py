@@ -3,13 +3,14 @@ import json
 import sys
 import mysqlfunc as MSSql
 import viajeTrasladoSocioUbi as VTSU
+import getCielo as diatras
 
 # Connect to mssql dB from start
 mssql_params = {}
 mssql_params['DB_HOST'] = '100.80.80.7'
 mssql_params['DB_NAME'] = 'nova'
 mssql_params['DB_USER'] = 'SA'
-mssql_params['DB_PASSWORD'] = 'Shakira123.'
+mssql_params['DB_PASSWORD'] = 'Shakira123.' 
 
 try:
     MSSql.cnx = MSSql.mssql_connect(mssql_params)
@@ -25,6 +26,13 @@ try:
 except Exception as e:
     print("Cannot connect to vtsu server!: {}".format(e))
     sys.exit()
+
+#Conectar cielo
+try:
+    diatras.mssql_params = mssql_params
+    diatras.cnx = diatras.mssql_connect(mssql_params)
+except Exception as e:
+    print("Cannot connect to getCielo server!: {}".format(e))
 
 app = Flask(__name__)
 
@@ -290,6 +298,21 @@ def traslados():
         return make_response(jsonify(results))
     except Exception as e:
         return make_response(jsonify({"error": str(e)}), 500)
+    
+#Sacar el traslado por el dia
+    
+@app.route("/tdia", methods=['GET'])
+def diaTras():
+    try:
+        date = request.args.get('date')             
+        idOperador = request.args.get('idOperador') 
+        
+        ovj = diatras.get_tras_dias(date, idOperador)
+        #Para regresar la lista aunque este vacia porque lo del operador se checa en backend no aqui
+        #Pero al regresar una vacia, se checa si esta empty la lista que recibe y ya 
+        return make_response(jsonify(ovj))
+    except Exception as e:
+        return make_response(jsonify({'error': str(e)}), 500)
 
 
 if __name__ == '__main__':
