@@ -92,6 +92,22 @@ def weekly_transfer_status():
     except Exception as e:
         return make_response(jsonify({"error": str(e)}), 500)
 
+
+#Enpoint para actualizar el km
+@app.route("/viaje/km", methods=['PUT'])
+def viajekm_update():
+    d = request.json
+    
+    d_field = {}
+    if 'fKmInicio' in d:
+        d_field['fKmInicio'] = d['fKmInicio']
+    else:
+        d_field['fKmFinal'] = d['fKmFinal']
+
+    d_where = {'IdTraslado': d['IdTraslado']}
+    MSSql.sql_update_where('Viaje', d_field, d_where)
+    return make_response(jsonify('ok'))
+
 if __name__ == '__main__':
     print ("Running API...")
     app.run(host='0.0.0.0', port=10204, debug=True)
