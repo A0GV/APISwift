@@ -206,6 +206,19 @@ def get_demand_hours():
         ORDER BY Hour ASC
     """
 
+    LOW_MAX = 2 
+    PROMEDIO_MAX = 9
+    BASTANTE_MAX = 13
+
+    def demnadaTxT(count):
+        if count <= LOW_MAX:
+            return "Bajo"
+        if count <= PROMEDIO_MAX:
+            return "Promedio"
+        if count <= BASTANTE_MAX:
+            return "Bastante"
+        return "Mucho"
+
     try:
         try:
             cursor = cnx.cursor(as_dict=True)
@@ -219,7 +232,14 @@ def get_demand_hours():
         results = cursor.fetchall()
         cursor.close()
 
-        return [{"Hour": row["Hour"], "Demand": row["Demand"]} for row in results]
+        return [
+            {
+                "Hour": row["Hour"],
+                "Demand": int(row["Demand"]),
+                "Text": demnadaTxT(int(row["Demand"]))
+            }
+            for row in results
+        ]
 
     except Exception as e:
         raise TypeError(f"get_demand_hours: {e}")
@@ -248,9 +268,9 @@ def get_operators_with_most_transfers():
         return [
             {
                 "IdUsuario": row['IdUsuario'],
-                "Nombre": row['vcNombre'],
-                "ApellidoPaterno": row['vcApellidoPaterno'],
-                "ApellidoMaterno": row['vcApellidoMaterno'],
+                "Nombre": " ".join(filter(None, [row.get('vcNombre'), row.get('vcApellidoPaterno'), row.get('vcApellidoMaterno')])),
+                # "ApellidoPaterno": row.get('vcApellidoPaterno'),
+                # "ApellidoMaterno": row.get('vcApellidoMaterno'),
                 "TotalTransfers": row['TotalTransfers']
             }
             for row in results
@@ -292,8 +312,8 @@ def get_monthly_transfer_percentages():
             {
                 "Year": row["Year"],
                 "Month": row["Month"],
-                "CompletedPercentage": row["CompletedPercentage"],
-                "CanceledPercentage": row["CanceledPercentage"],
+                "CompletedPercentage": float(row["CompletedPercentage"]) if row["CompletedPercentage"] is not None else 0.0,
+                "CanceledPercentage": float(row["CanceledPercentage"]) if row["CanceledPercentage"] is not None else 0.0,
             }
             for row in rows
         ]
@@ -305,36 +325,42 @@ def get_monthly_transfer_percentages():
 def get_weekly_transfer_status():
     import pymssql
     global cnx, mssql_params
+    #Stats de los viajes, obtiene los dias, cuenta cuanto hay de cada, y si hay algo que no es terminado y cancelado lo mete en pendiente
+    #Pasa el numero de dia del 1 al 7. De la tabla traslado junta para saber el nombre de los estatus
+    # Se unen los traslados registrados en viaje, pq un traslado puede tener uno o varios
+    #filtra para solo la ultima semana, agrupa dia de la semana y nombre dia. ordena por dia de la semana
     query = """
-    SELECT 
+    SELECT
+        DATEPART(WEEKDAY, t.dtFechaInicio) AS DayIndex,
         DATENAME(WEEKDAY, t.dtFechaInicio) AS DayOfWeek,
-        e.vcEstatus AS Status,
-        COUNT(*) AS Total
+        SUM(CASE WHEN e.vcEstatus = 'Terminado' THEN 1 ELSE 0 END) AS Completed,
+        SUM(CASE WHEN e.vcEstatus = 'Cancelado' THEN 1 ELSE 0 END) AS Canceled,
+        COUNT(*) - SUM(CASE WHEN e.vcEstatus IN ('Terminado','Cancelado') THEN 1 ELSE 0 END) AS Pending
     FROM Traslado tr
     INNER JOIN Estatus e ON tr.IdEstatus = e.IdEstatus
     INNER JOIN Viaje t ON tr.IdTraslado = t.IdTraslado
     WHERE t.dtFechaInicio >= DATEADD(DAY, -7, GETDATE())
-    GROUP BY DATENAME(WEEKDAY, t.dtFechaInicio), e.vcEstatus
-    ORDER BY DayOfWeek, Total DESC
+    GROUP BY DATEPART(WEEKDAY, t.dtFechaInicio), DATENAME(WEEKDAY, t.dtFechaInicio)
+    ORDER BY DayIndex
     """
     try:
         try:
             cursor = cnx.cursor(as_dict=True)
             cursor.execute(query)
         except pymssql._pymssql.InterfaceError:
-            print("reconnecting...")
             cnx = mssql_connect(mssql_params)
             cursor = cnx.cursor(as_dict=True)
             cursor.execute(query)
-        results = cursor.fetchall()
+        rows = cursor.fetchall()
         cursor.close()
         return [
             {
-                "DayOfWeek": row['DayOfWeek'],
-                "Status": row['Status'],
-                "Total": row['Total']
+                "DayOfWeek": row["DayOfWeek"],
+                "Completed": int(row["Completed"]),
+                "Canceled": int(row["Canceled"]),
+                "Pending": int(row["Pending"])
             }
-            for row in results
+            for row in rows
         ]
     except Exception as e:
         raise TypeError(f"get_weekly_transfer_status: {e}")
