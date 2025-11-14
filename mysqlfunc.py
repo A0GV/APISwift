@@ -535,10 +535,10 @@ def crear_solicitud_completa(data):
     except Exception as e:
         raise TypeError("crear_solicitud_completa: %s" % e)
 
-
 def get_traslados(params):
     import pymssql
     global cnx, mssql_params
+
     query = """
     SELECT v.idViaje, v.dtFechaInicio, v.dtFechaFin, v.idAmbulancia, CONCAT(s.vcNombre, ' ', s.vcApellidoPaterno, ' ', s.vcApellidoMaterno) AS paciente, e.vcEstatus AS estado, CONCAT(uO.vcNombre, ' ', uO.vcApellidoPaterno, ' ', uO.vcApellidoMaterno) AS operador, CONCAT(uC.vcNombre, ' ', uC.vcApellidoPaterno, ' ', uC.vcApellidoMaterno) AS coordinador, v.fKmInicio, v.fKmFinal
     FROM Viaje v 
@@ -550,28 +550,25 @@ def get_traslados(params):
     WHERE 1 = 1
     """
 
+    filters = [
+        ('fechaInit', "AND dtFechaInicio >= %s", lambda x: x),
+        ('fechaFin', "AND dtFechaInicio <= %s", lambda x: x),
+        ('estado', "AND IdEstatus = %s", lambda x: x),
+        ('paciente', "AND LOWER(CONCAT(s.vcNombre, ' ', s.vcApellidoPaterno, ' ', s.vcApellidoMaterno)) LIKE LOWER(%s)", lambda x: "%" + x + "%"),
+        ('operador', "AND LOWER (CONCAT(uO.vcNombre, ' ', uO.vcApellidoPaterno, ' ', uO.vcApellidoMaterno)) LIKE LOWER(%s)", lambda x: "%" + x + "%"),
+        ('idAmbulancia', "AND IdAmbulancia = %s", lambda x: x)
+    ]
+
     conditions = []
     values = []
 
-    if 'fechaInit' in params:
-        conditions.append("AND dtFechaInicio >= %s")
-        values.append(params['fechaInit'])
-    if 'fechaFin' in params:
-        conditions.append("AND dtFechaInicio <= %s")
-        values.append(params['fechaFin'])
-    if 'estado' in params:
-        conditions.append("AND e.vcEstatus = %s")
-        values.append(params['estado'])
-    if 'paciente' in params:
-        conditions.append("AND paciente LIKE %s")
-        values.append('%' + params['paciente'] + '%')
-    if 'operador' in params:
-        conditions.append("AND operador LIKE %s")
-        values.append('%' + params['operador'] + '%')
-    if 'idAmbulancia' in params:
-        conditions.append("AND idAmbulancia = %s")
-        values.append(params['idAmbulancia'])
+    for key, condition, fun in filters:
+        if key in params:
+            conditions.append(condition)
+            values.append(fun(params[key]))
+    
     query += ' '.join(conditions)
+
     try:
         try:
             cursor = cnx.cursor(as_dict=True)
@@ -586,6 +583,7 @@ def get_traslados(params):
         return results
     except Exception as e:
         raise TypeError("get_traslados:%s" % e)
+
 
 if __name__ == '__main__':
     import json

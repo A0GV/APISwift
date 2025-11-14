@@ -7,8 +7,8 @@ import getCielo as diatras
 
 # Connect to mssql dB from start
 mssql_params = {}
-mssql_params['DB_HOST'] = 'localhost'
-mssql_params['DB_NAME'] = 'nova2'
+mssql_params['DB_HOST'] = '100.80.80.7'
+mssql_params['DB_NAME'] = 'nova'
 mssql_params['DB_USER'] = 'SA'
 mssql_params['DB_PASSWORD'] = 'Shakira123.' 
 
@@ -111,8 +111,8 @@ def weekly_transfer_status():
         return make_response(jsonify({"error": str(e)}), 500)
 
 
-# Moni new endpoint to just get the number of last data
-# Call /viaje/kmAmbPrev?IdAmbulancia=2 change the 2 tho
+# GET endpoint to just get the number of last km trip
+# Call /viaje/kmAmbPrev?IdAmbulancia=1 change the 1 tho
 @app.route("/viaje/kmAmbPrev", methods=['GET'])
 def kmAmbPrev():
     IdAmbulancia = request.args.get('IdAmbulancia', type=int)
@@ -125,6 +125,20 @@ def kmAmbPrev():
     except Exception as e:
         return make_response(jsonify({"error": str(e)}), 500)
 
+# GET para los detalles de un traslado
+# Call /traslado/detallesTraslado?IdTraslado=? change the ?
+@app.route("/traslado/detallesTraslado", methods=['GET'])
+def detallesTraslado():
+    IdTraslado = request.args.get('IdTraslado', type=int)
+    if IdTraslado is None:
+        return make_response(jsonify({"error": "IdTraslado query parameter is required"}), 400)
+    try:
+        # Uses rows entcs como lista de diccionarios
+        rows = VTSU.sql_read_trip_details(IdTraslado)
+        return make_response(jsonify(rows))
+    except Exception as e:
+        return make_response(jsonify({"error": str(e)}), 500)
+    
 # ENDPOINTS PARA SOLICITAR VIAJE
 
 # GET todas las ubicaciones
@@ -269,29 +283,16 @@ def viajekm_update():
 Endpoints de traslados - Cristian Luque
 """
 
+def queryParams(*claves):
+    params = {}
+    for clave in claves:
+        if request.args.get(clave) is not None:
+            params[clave] = request.args.get(clave)
+    return params
+
 @app.route("/traslados", methods=['GET'])
 def traslados():
-    initDate = request.args.get('fechaInit', None)
-    finalDate = request.args.get('fechaFin', None)
-    state = request.args.get('estado', None)
-    operator = request.args.get('operador', None)
-    patient = request.args.get('paciente', None)
-    nAmbulance = request.args.get('idAmbulancia', None)
-
-    params = {}
-
-    if initDate is not None:
-        params['fechaInit'] = initDate
-    if finalDate is not None:
-        params['fechaFin'] = finalDate
-    if state is not None:
-        params['estado'] = state
-    if patient is not None:
-        params['paciente'] = patient
-    if operator is not None:
-        params['operador'] = operator
-    if nAmbulance is not None:
-        params['idAmbulancia'] = nAmbulance
+    params = queryParams('fechaInit', 'fechaFin', 'estado', 'operador', 'paciente', 'idAmbulancia')
 
     try:
         results = MSSql.get_traslados(params)
@@ -299,8 +300,9 @@ def traslados():
     except Exception as e:
         return make_response(jsonify({"error": str(e)}), 500)
     
-#Sacar el traslado por el dia
     
+#Sacar el traslado por el dia
+#/tdia?date='2025-11-14'&&idOperador=2
 @app.route("/tdia", methods=['GET'])
 def diaTras():
     try:

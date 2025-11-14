@@ -21,18 +21,23 @@ def get_tras_dias(date, idOperador):
             v.idAmbulancia AS amb,
             uo.vcDomicilio AS OrigenDomicilio,
             ud.vcDomicilio AS DestinoDomicilio,
+            t.IdTraslado AS traslado,
+            e.vcEstatus as estatus,
             tp.vcTipo AS tipo,
             s.vcNombre AS nombreSocio,
             s.vcApellidoPaterno AS apellido1,
             s.vcApellidoMaterno AS apellido2
-        FROM Viaje v
-        JOIN Traslado t ON t.IdTraslado = v.IdTraslado
-        JOIN TipoTraslado tp ON tp.IdTipoTraslado = t.IdTipoTraslado
-        JOIN Socios s ON t.IdNumeroSocio = s.IdNumeroSocio 
-        JOIN Ubicacion uo ON t.IdUbiOrigen = uo.IdUbicacion
-        JOIN Ubicacion ud ON t.IdUbiDest = ud.IdUbicacion
+        FROM dbo.Viaje v
+        JOIN dbo.Traslado t ON t.IdTraslado = v.IdTraslado
+        JOIN dbo.TipoTraslado tp ON tp.IdTipoTraslado = t.IdTipoTraslado
+        JOIN dbo.Socios s ON t.IdNumeroSocio = s.IdNumeroSocio 
+        JOIN dbo.Ubicacion uo ON t.IdUbiOrigen = uo.IdUbicacion
+        JOIN dbo.Ubicacion ud ON t.IdUbiDest = ud.IdUbicacion
+        JOIN dbo.Estatus e ON t.IdEstatus = e.IdEstatus
         WHERE CAST(v.dtFechaInicio AS DATE) = %s 
-          AND t.IdUsuarioOperador = %s;
+            AND t.IdUsuarioOperador = %s
+            AND e.vcEstatus NOT IN ('Terminado','Cancelado')
+        ORDER BY v.dtFechaInicio ASC;
     """
 
     try:
@@ -59,7 +64,7 @@ if __name__ == '__main__':
     import json
 
     mssql_params = {}
-    mssql_params['DB_HOST'] = '100.80.80.7'
+    mssql_params['DB_HOST'] = '100.80.80.7' 
     mssql_params['DB_NAME'] = 'nova'
     mssql_params['DB_USER'] = 'SA'
     mssql_params['DB_PASSWORD'] = 'Shakira123.'
