@@ -256,6 +256,42 @@ def viajekm_update():
     return make_response(jsonify('ok'))
 
 
+
+"""
+Endpoints de traslados - Cristian Luque
+"""
+
+@app.route("/traslados", methods=['GET'])
+def traslados():
+    initDate = request.args.get('fechaInit', None)
+    finalDate = request.args.get('fechaFin', None)
+    state = request.args.get('estado', None)
+    operator = request.args.get('operador', None)
+    patient = request.args.get('paciente', None)
+    nAmbulance = request.args.get('idAmbulancia', None)
+
+    params = {}
+
+    if initDate is not None:
+        params['fechaInit'] = initDate
+    if finalDate is not None:
+        params['fechaFin'] = finalDate
+    if state is not None:
+        params['estado'] = state
+    if patient is not None:
+        params['paciente'] = patient
+    if operator is not None:
+        params['operador'] = operator
+    if nAmbulance is not None:
+        params['idAmbulancia'] = nAmbulance
+
+    try:
+        results = MSSql.get_traslados(params)
+        return make_response(jsonify(results))
+    except Exception as e:
+        return make_response(jsonify({"error": str(e)}), 500)
+
+
 if __name__ == '__main__':
     print ("Running API...")
     app.run(host='0.0.0.0', port=10204, debug=True)

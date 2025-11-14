@@ -455,6 +455,58 @@ def crear_solicitud_completa(data):
     except Exception as e:
         raise TypeError("crear_solicitud_completa: %s" % e)
 
+
+def get_traslados(params):
+    import pymssql
+    global cnx, mssql_params
+    query = """
+    SELECT v.idViaje, v.dtFechaInicio, v.dtFechaFin, v.idAmbulancia, CONCAT(s.vcNombre, ' ', s.vcApellidoPaterno, ' ', s.vcApellidoMaterno) AS paciente, e.vcEstatus AS estado, CONCAT(uO.vcNombre, ' ', uO.vcApellidoPaterno, ' ', uO.vcApellidoMaterno) AS operador, CONCAT(uC.vcNombre, ' ', uC.vcApellidoPaterno, ' ', uC.vcApellidoMaterno) AS coordinador, v.fKmInicio, v.fKmFinal
+    FROM Viaje v 
+    JOIN Traslado t  ON v.idTraslado = t.idTraslado
+    JOIN Socios s    ON s.IdNumeroSocio = t.IdNumeroSocio 
+    JOIN Usuarios uC ON uC.IdUsuario = v.IdUsuarioCoord 
+    JOIN Usuarios uO ON uO.IdUsuario = t.IdUsuarioOperador
+    JOIN Estatus e   ON e.IdEstatus = t.IdEstatus
+    WHERE 1 = 1
+    """
+
+    conditions = []
+    values = []
+
+    if 'fechaInit' in params:
+        conditions.append("AND dtFechaInicio >= %s")
+        values.append(params['fechaInit'])
+    if 'fechaFin' in params:
+        conditions.append("AND dtFechaInicio <= %s")
+        values.append(params['fechaFin'])
+    if 'estado' in params:
+        conditions.append("AND e.vcEstatus = %s")
+        values.append(params['estado'])
+    if 'paciente' in params:
+        conditions.append("AND paciente LIKE %s")
+        values.append('%' + params['paciente'] + '%')
+    if 'operador' in params:
+        conditions.append("AND operador LIKE %s")
+        values.append('%' + params['operador'] + '%')
+    if 'idAmbulancia' in params:
+        conditions.append("AND idAmbulancia = %s")
+        values.append(params['idAmbulancia'])
+    query += ' '.join(conditions)
+    try:
+        try:
+            cursor = cnx.cursor(as_dict=True)
+            cursor.execute(query, tuple(values))
+        except pymssql._pymssql.InterfaceError:
+            print("reconnecting...")
+            cnx = mssql_connect(mssql_params)
+            cursor = cnx.cursor(as_dict=True)
+            cursor.execute(query)
+        results = cursor.fetchall()
+        cursor.close()
+        return results
+    except Exception as e:
+        raise TypeError("get_traslados:%s" % e)
+
 if __name__ == '__main__':
     import json
     mssql_params = {}
