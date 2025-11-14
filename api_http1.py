@@ -7,8 +7,8 @@ import getCielo as diatras
 
 # Connect to mssql dB from start
 mssql_params = {}
-mssql_params['DB_HOST'] = 'localhost'
-mssql_params['DB_NAME'] = 'nova2'
+mssql_params['DB_HOST'] = '100.80.80.7'
+mssql_params['DB_NAME'] = 'nova'
 mssql_params['DB_USER'] = 'SA'
 mssql_params['DB_PASSWORD'] = 'Shakira123.' 
 
@@ -302,7 +302,7 @@ def traslados():
     
     
 #Sacar el traslado por el dia
-    
+#/tdia?date='2025-11-14'&&idOperador=2
 @app.route("/tdia", methods=['GET'])
 def diaTras():
     try:
