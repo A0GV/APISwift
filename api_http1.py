@@ -6,7 +6,7 @@ import mysqlfunc as MSSql
 # Connect to mssql dB from start
 mssql_params = {}
 mssql_params['DB_HOST'] = 'localhost'
-mssql_params['DB_NAME'] = 'nova'
+mssql_params['DB_NAME'] = 'nova2'
 mssql_params['DB_USER'] = 'SA'
 mssql_params['DB_PASSWORD'] = 'Shakira123.'
 

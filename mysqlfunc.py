@@ -198,12 +198,14 @@ def sql_delete_where(table_name, d_where):
 def get_demand_hours():
     import pymssql
     global cnx, mssql_params
+
     query = """
-    SELECT DATEPART(HOUR, dtFechaInicio) AS Hour, COUNT(*) AS Demand
-    FROM Viaje
-    GROUP BY DATEPART(HOUR, dtFechaInicio)
-    ORDER BY Demand DESC
+        SELECT DATEPART(HOUR, t.dtFechaInicio) AS Hour, COUNT(*) AS Demand
+        FROM Viaje t
+        GROUP BY DATEPART(HOUR, t.dtFechaInicio)
+        ORDER BY Hour ASC
     """
+
     try:
         try:
             cursor = cnx.cursor(as_dict=True)
@@ -213,11 +215,14 @@ def get_demand_hours():
             cnx = mssql_connect(mssql_params)
             cursor = cnx.cursor(as_dict=True)
             cursor.execute(query)
+
         results = cursor.fetchall()
         cursor.close()
-        return [{"Hour": row['Hour'], "Demand": row['Demand']} for row in results]
+
+        return [{"Hour": row["Hour"], "Demand": row["Demand"]} for row in results]
+
     except Exception as e:
-        raise TypeError("get_demand_hours: %s" % e)
+        raise TypeError(f"get_demand_hours: {e}")
 
 def get_operators_with_most_transfers():
     import pymssql
@@ -256,18 +261,20 @@ def get_operators_with_most_transfers():
 def get_monthly_transfer_percentages():
     import pymssql
     global cnx, mssql_params
+
     query = """
-    SELECT 
-        MONTH(t.dtFechaInicio) AS Month, 
-        YEAR(t.dtFechaInicio) AS Year,
-        SUM(CASE WHEN e.vcEstatus = 'Terminado' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS CompletedPercentage,
-        SUM(CASE WHEN e.vcEstatus = 'Cancelado' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS CanceledPercentage
-    FROM Traslado tr
-    INNER JOIN Estatus e ON tr.IdEstatus = e.IdEstatus
-    INNER JOIN Viaje t ON tr.IdTraslado = t.IdTraslado
-    GROUP BY YEAR(t.dtFechaInicio), MONTH(t.dtFechaInicio)
-    ORDER BY Year, Month
+        SELECT 
+            YEAR(v.dtFechaInicio) AS Year,
+            MONTH(v.dtFechaInicio) AS Month,
+            SUM(CASE WHEN e.vcEstatus = 'Terminado' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS CompletedPercentage,
+            SUM(CASE WHEN e.vcEstatus = 'Cancelado' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS CanceledPercentage
+        FROM Traslado tr
+        INNER JOIN Estatus e ON tr.IdEstatus = e.IdEstatus
+        INNER JOIN Viaje v ON tr.IdTraslado = v.IdTraslado
+        GROUP BY YEAR(v.dtFechaInicio), MONTH(v.dtFechaInicio)
+        ORDER BY Year, Month
     """
+
     try:
         try:
             cursor = cnx.cursor(as_dict=True)
@@ -277,19 +284,23 @@ def get_monthly_transfer_percentages():
             cnx = mssql_connect(mssql_params)
             cursor = cnx.cursor(as_dict=True)
             cursor.execute(query)
-        results = cursor.fetchall()
+
+        rows = cursor.fetchall()
         cursor.close()
+
         return [
             {
-                "Year": row['Year'],
-                "Month": row['Month'],
-                "CompletedPercentage": row['CompletedPercentage'],
-                "CanceledPercentage": row['CanceledPercentage']
+                "Year": row["Year"],
+                "Month": row["Month"],
+                "CompletedPercentage": row["CompletedPercentage"],
+                "CanceledPercentage": row["CanceledPercentage"],
             }
-            for row in results
+            for row in rows
         ]
+
     except Exception as e:
         raise TypeError(f"get_monthly_transfer_percentages: {e}")
+
 
 def get_weekly_transfer_status():
     import pymssql
