@@ -111,7 +111,7 @@ def weekly_transfer_status():
         return make_response(jsonify({"error": str(e)}), 500)
 
 
-# Moni new endpoint to just get the number of last data
+# GET endpoint to just get the number of last km trip
 # Call /viaje/kmAmbPrev?IdAmbulancia=1 change the 1 tho
 @app.route("/viaje/kmAmbPrev", methods=['GET'])
 def kmAmbPrev():
@@ -125,6 +125,20 @@ def kmAmbPrev():
     except Exception as e:
         return make_response(jsonify({"error": str(e)}), 500)
 
+# GET para los detalles de un traslado
+# Call /traslado/detallesTraslado?IdTraslado=? change the ?
+@app.route("/traslado/detallesTraslado", methods=['GET'])
+def detallesTraslado():
+    IdTraslado = request.args.get('IdTraslado', type=int)
+    if IdTraslado is None:
+        return make_response(jsonify({"error": "IdTraslado query parameter is required"}), 400)
+    try:
+        # Uses rows entcs como lista de diccionarios
+        rows = VTSU.sql_read_trip_details(IdTraslado)
+        return make_response(jsonify(rows))
+    except Exception as e:
+        return make_response(jsonify({"error": str(e)}), 500)
+    
 # ENDPOINTS PARA SOLICITAR VIAJE
 
 # GET todas las ubicaciones
