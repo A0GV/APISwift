@@ -315,6 +315,19 @@ def diaTras():
         return make_response(jsonify({'error': str(e)}), 500)
 
 
+@app.route("/ambulancias/mantenimiento", methods=['GET'])
+def dMantenimiento():
+    try:
+        # Llamar a la función de mysqlfunc para obtener el estado semanal de los traslados
+        results = MSSql.get_maintenance()
+        return make_response(jsonify(results))
+    except Exception as e:
+        return make_response(jsonify({"error": str(e)}), 500)
+
+
+
 if __name__ == '__main__':
     print ("Running API...")
     app.run(host='0.0.0.0', port=10204, debug=True)
+
+

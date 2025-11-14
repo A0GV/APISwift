@@ -321,6 +321,49 @@ def get_monthly_transfer_percentages():
     except Exception as e:
         raise TypeError(f"get_monthly_transfer_percentages: {e}")
 
+def get_maintenance():
+    import pymssql
+    from datetime import datetime
+    global cnx, mssql_params
+
+    query = """
+        SELECT IdAmbulancia, fProxMantenimiento 
+        FROM Ambulancia;
+    """
+
+    try:
+        try:
+            cursor = cnx.cursor(as_dict=True)
+            cursor.execute(query)
+        except pymssql._pymssql.InterfaceError:
+            print("reconnecting...")
+            cnx = mssql_connect(mssql_params)
+            cursor = cnx.cursor(as_dict=True)
+            cursor.execute(query)
+
+        rows = cursor.fetchall()
+        cursor.close()
+
+        today = datetime.today()
+
+        def dias_para_mantenimiento(dt):
+            if dt is None:
+                return "Sin fecha"
+            dias = (dt - today).days
+            if dias <= 0:
+                return "Urgente"
+            return dias
+
+        return [
+            {
+                "IdAmbu": row["IdAmbulancia"],
+                "dMant": dias_para_mantenimiento(row["fProxMantenimiento"])
+            }
+            for row in rows
+        ]
+
+    except Exception as e:
+        raise TypeError(f"get_maintenance: {e}")
 
 def get_weekly_transfer_status():
     import pymssql
