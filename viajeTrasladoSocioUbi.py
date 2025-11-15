@@ -116,6 +116,42 @@ def sql_update_start_trip(IdViaje, IdTraslado, fKmInicio):
     except Exception as e:
         raise TypeError("sql_update_start_trip: %s" % e)
 
+# PUT usa IdTraslado para set fKmInicial y fKmFinal a curr value y change IdEstatus a 3
+def sql_update_end_trip(IdViaje, IdTraslado, fKmInicio, fKmFinal):
+    import pymssql
+    global cnx, mssql_params
+    
+    # Hace dos queries pq tenemos div km y estatus, so sets initial, final km and then in traslado marca como completado
+    update_queries = """
+        UPDATE Viaje 
+        SET fKmInicio = %s, fKmFinal = %s
+        WHERE IdViaje = %s;
+        
+        UPDATE Traslado
+        SET IdEstatus = 3
+        WHERE IdTraslado = %s;
+    """
+    
+    try:
+        try:
+            cursor = cnx.cursor()
+            cursor.execute(update_queries, (fKmInicio, fKmFinal, IdViaje, IdTraslado))
+        
+            cnx.commit()  # Execs los dos cambios
+            cursor.close()
+            return {"success": True, "message": "Ended trip, set initial km and changed status"}
+        except pymssql._pymssql.InterfaceError:
+            print("reconnecting...")
+            cnx = mssql_connect(mssql_params)
+            cursor = cnx.cursor()
+            cursor.execute(update_queries, (fKmInicio, fKmFinal, IdViaje, IdTraslado))
+            
+            cnx.commit()
+            cursor.close()
+            return {"success": True, "message": "Ended trip con km y estatus"}
+    except Exception as e:
+        raise TypeError("sql_update_end_trip: %s" % e)
+
 if __name__ == '__main__':
     import json
     mssql_params = {}

@@ -165,6 +165,28 @@ def iniciar_viaje():
         return make_response(jsonify(result), 200) # Success result 
     except Exception as e:
         return make_response(jsonify({"error": str(e)}), 500) # Fracaso
+
+# PUT Starts the trip by setting initial km and setting status as 2, viaje tiene q ya existir para funcionar Moni
+@app.route("/viaje/finalizar", methods=['PUT'])
+def finalizar_viaje():
+    # Many params so extract el request
+    data = request.json
+
+    IdViaje = data.get('IdViaje')
+    IdTraslado = data.get('IdTraslado')
+    fKmInicio = data.get('fKmInicio')
+    fKmFinal = data.get('fKmFinal')
+    
+    if IdViaje is None or IdTraslado is None or fKmInicio is None or fKmFinal is None:
+        return make_response(jsonify({
+            "error": "Faltan params: IdViaje, IdTraslado, fKmInicio, fKmFinal"
+        }), 400)
+    
+    try:
+        result = VTSU.sql_update_end_trip(IdViaje, IdTraslado, fKmInicio, fKmFinal) # Can call it so starts 
+        return make_response(jsonify(result), 200) # Success result 
+    except Exception as e:
+        return make_response(jsonify({"error": str(e)}), 500) # Fracaso
     
 # ENDPOINTS PARA SOLICITAR VIAJE
 
