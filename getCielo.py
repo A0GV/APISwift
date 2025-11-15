@@ -20,6 +20,8 @@ def get_tras_dias(date, idOperador):
             v.dtFechaFin AS fin,
             v.idAmbulancia AS amb,
             v.IdViaje as viaje,
+            v.fKmInico,
+            v.fKmFinal,
             uo.vcDomicilio AS OrigenDomicilio,
             ud.vcDomicilio AS DestinoDomicilio,
             t.IdTraslado AS traslado,
