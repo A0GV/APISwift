@@ -138,6 +138,55 @@ def detallesTraslado():
         return make_response(jsonify(rows))
     except Exception as e:
         return make_response(jsonify({"error": str(e)}), 500)
+
+# PUT Starts the trip by setting initial km and setting status as 2, viaje tiene q ya existir para funcionar Moni
+#Postman structure: 
+#{
+#    "IdViaje": 5,
+#    "IdTraslado": 7,
+#   "fKmInicio": 10000
+#  }
+@app.route("/viaje/iniciar", methods=['PUT'])
+def iniciar_viaje():
+    # Many params so extract el request
+    data = request.json
+
+    IdViaje = data.get('IdViaje')
+    IdTraslado = data.get('IdTraslado')
+    fKmInicio = data.get('fKmInicio')
+    
+    if IdViaje is None or IdTraslado is None or fKmInicio is None:
+        return make_response(jsonify({
+            "error": "Faltan params: IdViaje, IdTraslado, fKmInicio"
+        }), 400)
+    
+    try:
+        result = VTSU.sql_update_start_trip(IdViaje, IdTraslado, fKmInicio) # Can call it so starts 
+        return make_response(jsonify(result), 200) # Success result 
+    except Exception as e:
+        return make_response(jsonify({"error": str(e)}), 500) # Fracaso
+
+# PUT Starts the trip by setting initial km and setting status as 2, viaje tiene q ya existir para funcionar Moni
+@app.route("/viaje/finalizar", methods=['PUT'])
+def finalizar_viaje():
+    # Many params so extract el request
+    data = request.json
+
+    IdViaje = data.get('IdViaje')
+    IdTraslado = data.get('IdTraslado')
+    fKmInicio = data.get('fKmInicio')
+    fKmFinal = data.get('fKmFinal')
+    
+    if IdViaje is None or IdTraslado is None or fKmInicio is None or fKmFinal is None:
+        return make_response(jsonify({
+            "error": "Faltan params: IdViaje, IdTraslado, fKmInicio, fKmFinal"
+        }), 400)
+    
+    try:
+        result = VTSU.sql_update_end_trip(IdViaje, IdTraslado, fKmInicio, fKmFinal) # Can call it so starts 
+        return make_response(jsonify(result), 200) # Success result 
+    except Exception as e:
+        return make_response(jsonify({"error": str(e)}), 500) # Fracaso
     
 # ENDPOINTS PARA SOLICITAR VIAJE
 
@@ -326,6 +375,62 @@ def dMantenimiento():
     except Exception as e:
         return make_response(jsonify({"error": str(e)}), 500)
 
+# ========== ENDPOINTS DE LOGIN ==========
+
+# Login para OPERADORES (IdTipoPersonal = 1)
+@app.route("/api/login/operador", methods=['GET'])
+def login_operador():
+    id_usuario = request.args.get('idUsuario', None)
+    vc_codigo = request.args.get('vcCodigoUsuario', None)
+    
+    if not id_usuario or not vc_codigo:
+        return make_response(jsonify({'error': 'Se requieren idUsuario y vcCodigoUsuario'}), 400)
+    try:
+        # Primero buscar el usuario
+        usuario = MSSql.sql_read_where('Usuarios', {'IdUsuario': id_usuario, 'IdTipoPersonal': 1})
+        if not usuario:
+            return make_response(jsonify({'error': 'Credenciales inválidas o permisos insuficientes'}), 401)
+        
+        # Obtener el IdPass del usuario
+        id_pass = usuario[0]['IdPass']
+        
+        # Verificar la contraseña
+        password_record = MSSql.sql_read_where('Pass', {'IdPass': id_pass, 'vcCodigoUsuario': vc_codigo})
+        if password_record:
+            return make_response(jsonify({'IdUsuario': int(id_usuario), 'message': 'Login exitoso'}), 200)
+        else:
+            return make_response(jsonify({'error': 'Credenciales inválidas o permisos insuficientes'}), 401)
+            
+    except Exception as e:
+        return make_response(jsonify({'error': str(e)}), 500)
+
+
+# Login para COORDINADORES (IdTipoPersonal = 2)
+@app.route("/api/login/coordinador", methods=['GET'])
+def login_coordinador():
+    id_usuario = request.args.get('idUsuario', None)
+    vc_codigo = request.args.get('vcCodigoUsuario', None)
+    
+    if not id_usuario or not vc_codigo:
+        return make_response(jsonify({'error': 'Se requieren idUsuario y vcCodigoUsuario'}), 400)
+    try:
+        # Primero buscar el usuario
+        usuario = MSSql.sql_read_where('Usuarios', {'IdUsuario': id_usuario, 'IdTipoPersonal': 2})
+        
+        if not usuario:
+            return make_response(jsonify({'error': 'Credenciales inválidas o permisos insuficientes'}), 401)
+        # Obtener el IdPass del usuario
+        id_pass = usuario[0]['IdPass']
+        
+        # Verificar la contraseña
+        password_record = MSSql.sql_read_where('Pass', {'IdPass': id_pass, 'vcCodigoUsuario': vc_codigo})
+        if password_record:
+            return make_response(jsonify({'IdUsuario': int(id_usuario), 'message': 'Login exitoso'}), 200)
+        else:
+            return make_response(jsonify({'error': 'Credenciales inválidas o permisos insuficientes'}), 401)
+            
+    except Exception as e:
+        return make_response(jsonify({'error': str(e)}), 500)
 
 
 if __name__ == '__main__':
