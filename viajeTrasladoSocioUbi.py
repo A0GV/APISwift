@@ -152,6 +152,60 @@ def sql_update_end_trip(IdViaje, IdTraslado, fKmInicio, fKmFinal):
     except Exception as e:
         raise TypeError("sql_update_end_trip: %s" % e)
 
+
+
+
+
+
+def sql_read_next_trip(id_operador):
+    import pymssql
+    global cnx, mssql_params
+
+    query = """
+        SELECT TOP (1)
+            t.IdTraslado,
+            t.IdUsuarioOperador,
+            t.IdNumeroSocio,
+            t.IdTipoTraslado,
+            t.IdUbiOrigen,
+            t.IdUbiDest,
+            t.vcRazon,
+            t.IdEstatus,
+            t.dtFechaCreacion,
+            v.IdViaje,
+            v.dtFechaInicio,
+            v.dtFechaFin,
+            v.IdAmbulancia,
+            v.fKmInicio,
+            v.fKmFinal
+        FROM Traslado t
+        LEFT JOIN Viaje v ON v.IdTraslado = t.IdTraslado
+        WHERE t.IdEstatus = 1
+          AND t.IdUsuarioOperador = %s
+        ORDER BY t.dtFechaCreacion ASC;
+    """
+
+    try:
+        cursor = cnx.cursor(as_dict=True)
+        cursor.execute(query, (id_operador,))
+    except pymssql._pymssql.InterfaceError:
+        print("Reconnecting to SQL Server...")
+        cnx = mssql_connect(mssql_params)
+        cursor = cnx.cursor(as_dict=True)
+        cursor.execute(query, (id_operador,))
+
+    try:
+        result = cursor.fetchall()
+        cursor.close()
+        return result
+    except Exception as e:
+        raise TypeError(f"sql_read_next_trip: {e}")
+
+
+
+
+
+
 if __name__ == '__main__':
     import json
     mssql_params = {}

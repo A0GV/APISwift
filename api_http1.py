@@ -9,8 +9,8 @@ from pydantic import ValidationError
 
 # Connect to mssql dB from start
 mssql_params = {}
-mssql_params['DB_HOST'] = '100.80.80.7'
-mssql_params['DB_NAME'] = 'nova'
+mssql_params['DB_HOST'] = '10.14.255.41:1433' #'100.80.80.7'
+mssql_params['DB_NAME'] = 'nova' #'renova2'
 mssql_params['DB_USER'] = 'SA'
 mssql_params['DB_PASSWORD'] = 'Shakira123.' 
 
@@ -111,6 +111,7 @@ def weekly_transfer_status():
         return make_response(jsonify(results))
     except Exception as e:
         return make_response(jsonify({"error": str(e)}), 500)
+
 
 
 # GET endpoint to just get the number of last km trip
@@ -409,6 +410,20 @@ def login_operador():
         return make_response(jsonify({'error': str(e)}), 500)
 
 
+from flask import request
+
+@app.route("/ambulancias/siguiente-traslado", methods=['GET'])
+def next_trip():
+    id_operador = request.args.get("idOperador", type=int)
+    if not id_operador:
+        return make_response(jsonify({"error": "Se requiere idOperador"}), 400)
+
+    try:
+        results = VTSU.sql_read_next_trip(id_operador)
+        return make_response(jsonify(results))
+    except Exception as e:
+        return make_response(jsonify({"error": str(e)}), 500)
+
 # Login para COORDINADORES (IdTipoPersonal = 2)
 @app.route("/api/login/coordinador", methods=['GET'])
 def login_coordinador():
@@ -436,44 +451,6 @@ def login_coordinador():
     except Exception as e:
         return make_response(jsonify({'error': str(e)}), 500)
 
-
-# ========== ENDPOINTS DE TRASLADOS ============
-@app.route("/traslados", methods=['GET'])
-def traslados():
-    try:
-        try:
-            # Importar la clase para validación de tipos
-            from models import TrasladoQueryParams
-            validated_params = TrasladoQueryParams(**request.args.to_dict())
-            params = validated_params.dict(exclude_none=True)
-        except ValidationError as e:
-            return make_response(jsonify({
-                "error": "Parámetros de consulta inválidos",
-                "code": 400,
-                "details":str(e.errors())}), 400)
-        try:
-            # Descarta operador y paciente si se quiere hacer una búsqueda or entre ambos
-            if params.get('orPacienteOperador') is not None and params['orPacienteOperador']:
-                if params.get('operador') is None or params.get('paciente') is None:
-                    raise ValueError("Si el parámetro de consulta 'orPacienteOperador' está presente, los parámetros 'operador' y 'paciente' deben estar presentes.")
-
-                # Se combinan en una consulta y se eliminan las originales
-                params['orPacienteOperador'] = [params['operador'], params['paciente']]
-                params.pop('operador')
-                params.pop('paciente')
-
-        except Exception as e:
-            return make_response(jsonify({
-                "error": str(e),
-                "code": 400}), 400)
-        
-        # Se llama al servicio de base de datos
-        results = MSSql.get_traslados(params)
-        return make_response(jsonify(results))
-    except Exception as e:
-        return make_response(jsonify({"error": str(e)}), 500)
 if __name__ == '__main__':
     print ("Running API...")
     app.run(host='0.0.0.0', port=10204, debug=True)
-
-

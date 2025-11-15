@@ -195,6 +195,10 @@ def sql_delete_where(table_name, d_where):
     except Exception as e:
         raise TypeError("sql_delete_where:%s" % e)
 
+
+###############################
+
+
 def get_demand_hours():
     import pymssql
     global cnx, mssql_params
@@ -416,10 +420,12 @@ def get_weekly_transfer_status():
     try:
         try:
             cursor = cnx.cursor(as_dict=True)
+            cursor.execute("SET LANGUAGE Spanish;")
             cursor.execute(query)
         except pymssql._pymssql.InterfaceError:
             cnx = mssql_connect(mssql_params)
             cursor = cnx.cursor(as_dict=True)
+            cursor.execute("SET LANGUAGE Spanish;")
             cursor.execute(query)
         rows = cursor.fetchall()
         cursor.close()
@@ -434,6 +440,9 @@ def get_weekly_transfer_status():
         ]
     except Exception as e:
         raise TypeError(f"get_weekly_transfer_status: {e}")
+
+###############################
+
     
 def get_ambulancias_disponibles(fecha_inicio, fecha_fin):
     import pymssql
