@@ -546,6 +546,7 @@ def crear_solicitud_completa(data):
     except Exception as e:
         raise TypeError("crear_solicitud_completa: %s" % e)
 
+
 def get_traslados(params):
     import pymssql
     global cnx, mssql_params
@@ -561,22 +562,27 @@ def get_traslados(params):
     WHERE 1 = 1
     """
 
-    filters = [
-        ('fechaInit', "AND dtFechaInicio >= %s", lambda x: x),
-        ('fechaFin', "AND dtFechaInicio <= %s", lambda x: x),
-        ('estado', "AND IdEstatus = %s", lambda x: x),
-        ('paciente', "AND LOWER(CONCAT(s.vcNombre, ' ', s.vcApellidoPaterno, ' ', s.vcApellidoMaterno)) LIKE LOWER(%s)", lambda x: "%" + x + "%"),
-        ('operador', "AND LOWER (CONCAT(uO.vcNombre, ' ', uO.vcApellidoPaterno, ' ', uO.vcApellidoMaterno)) LIKE LOWER(%s)", lambda x: "%" + x + "%"),
-        ('idAmbulancia', "AND IdAmbulancia = %s", lambda x: x)
-    ]
+    filters = {
+        'fechaInicio' : ["AND v.dtFechaInicio >= %s", lambda x: x],
+        'fechaFin' : ["AND v.dtFechaInicio <= %s", lambda x: x],
+        'estado' : ["AND e.vcEstatus LIKE %s", lambda x: x],
+        'paciente' : ["AND LOWER(CONCAT(s.vcNombre, ' ', s.vcApellidoPaterno, ' ', s.vcApellidoMaterno)) COLLATE Latin1_General_CI_AI LIKE LOWER(%s)", lambda x: "%" + x + "%"],
+        'operador' : ["AND LOWER (CONCAT(uO.vcNombre, ' ', uO.vcApellidoPaterno, ' ', uO.vcApellidoMaterno)) COLLATE Latin1_General_CI_AI LIKE LOWER(%s)", lambda x: "%" + x + "%"],
+        'idAmbulancia' : ["AND v.IdAmbulancia = %s", lambda x: x],
+        'orPacienteOperador' : ["AND (LOWER(CONCAT(s.vcNombre, ' ', s.vcApellidoPaterno, ' ', s.vcApellidoMaterno)) COLLATE Latin1_General_CI_AI LIKE LOWER(%s) OR LOWER(CONCAT(uO.vcNombre, ' ', uO.vcApellidoPaterno, ' ', uO.vcApellidoMaterno)) COLLATE Latin1_General_CI_AI LIKE LOWER(%s))", lambda pairOP: ["%" + pairOP[0] + "%", "%" + pairOP[1] + "%"]],
+    }
 
     conditions = []
     values = []
 
-    for key, condition, fun in filters:
-        if key in params:
-            conditions.append(condition)
-            values.append(fun(params[key]))
+    for key, val in params.items():
+        condition, fun = filters[key]
+        conditions.append(condition)
+        res = fun(val)
+        if isinstance(res, list):
+            values.extend(res)
+        else:
+            values.append(fun(res))
     
     query += ' '.join(conditions)
 
