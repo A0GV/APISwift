@@ -19,6 +19,7 @@ def get_tras_dias(date, idOperador):
             v.dtFechaInicio AS inicio,
             v.dtFechaFin AS fin,
             v.idAmbulancia AS amb,
+            v.IdViaje as viaje,
             uo.vcDomicilio AS OrigenDomicilio,
             ud.vcDomicilio AS DestinoDomicilio,
             t.IdTraslado AS traslado,
@@ -80,3 +81,5 @@ if __name__ == '__main__':
         print(f"Error: {e}")
 
     cnx.close()
+
+
