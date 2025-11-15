@@ -7,8 +7,8 @@ import getCielo as diatras
 
 # Connect to mssql dB from start
 mssql_params = {}
-mssql_params['DB_HOST'] = '100.80.80.7'
-mssql_params['DB_NAME'] = 'nova'
+mssql_params['DB_HOST'] = 'localhost'
+mssql_params['DB_NAME'] = 'renova2'
 mssql_params['DB_USER'] = 'SA'
 mssql_params['DB_PASSWORD'] = 'Shakira123.' 
 

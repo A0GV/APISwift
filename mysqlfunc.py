@@ -327,8 +327,18 @@ def get_maintenance():
     global cnx, mssql_params
 
     query = """
-        SELECT IdAmbulancia, fProxMantenimiento 
-        FROM Ambulancia;
+        SELECT 
+            a.IdAmbulancia,
+            a.dProxMantenimiento,
+            (
+                SELECT TOP (1) v.fKmFinal
+                FROM Viaje v
+                JOIN Traslado t ON t.IdTraslado = v.IdTraslado
+                WHERE v.IdAmbulancia = a.IdAmbulancia
+                  AND v.fKmFinal IS NOT NULL
+                ORDER BY v.dtFechaFin DESC
+            ) AS KmActual
+        FROM Ambulancia a;
     """
 
     try:
@@ -356,8 +366,9 @@ def get_maintenance():
 
         return [
             {
-                "IdAmbu": row["IdAmbulancia"],
-                "dMant": dias_para_mantenimiento(row["fProxMantenimiento"])
+                "IdAmbu": f"Ambulancia {row['IdAmbulancia']}",
+                "dMant": f"{dias_para_mantenimiento(row["dProxMantenimiento"])} dias",
+                "KmActual": row["KmActual"] if row["KmActual"] is not None else 0
             }
             for row in rows
         ]
