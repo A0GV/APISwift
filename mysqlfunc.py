@@ -199,6 +199,8 @@ def get_demand_hours():
     import pymssql
     global cnx, mssql_params
 
+    # Este query obtiene la cantidad de viajes agrupados por hora de inicio (dtFechaInicio) 
+    # y los ordena de forma ascendente por la hora.
     query = """
         SELECT DATEPART(HOUR, t.dtFechaInicio) AS Hour, COUNT(*) AS Demand
         FROM Viaje t
@@ -207,8 +209,8 @@ def get_demand_hours():
     """
 
     LOW_MAX = 2 
-    PROMEDIO_MAX = 9
-    BASTANTE_MAX = 13
+    PROMEDIO_MAX = 5
+    BASTANTE_MAX = 10
 
     def demnadaTxT(count):
         if count <= LOW_MAX:
@@ -247,6 +249,10 @@ def get_demand_hours():
 def get_operators_with_most_transfers():
     import pymssql
     global cnx, mssql_params
+    # obtiene los operadores con más traslados realizados
+    # y el total de traslados. Los resultados se agrupan por operador
+    # y se ordenan en orden descendente según el número total de traslados.
+    
     query = """
     SELECT u.IdUsuario, u.vcNombre, u.vcApellidoPaterno, u.vcApellidoMaterno, COUNT(t.IdTraslado) AS TotalTransfers
     FROM Usuarios u
@@ -281,7 +287,12 @@ def get_operators_with_most_transfers():
 def get_monthly_transfer_percentages():
     import pymssql
     global cnx, mssql_params
-
+    
+    # calcula el porcentaje de traslados completados y cancelados por mes y año.
+    # Agrupa los datos por año y mes de la fecha de inicio del viaje
+    # Utiliza la tabla Traslado para obtener los estatus de los viajes y calcula los porcentajes
+    # basándose en el total de registros por mes.
+    # Los resultados se ordenan por año y mes.
     query = """
         SELECT 
             YEAR(v.dtFechaInicio) AS Year,
@@ -325,7 +336,12 @@ def get_maintenance():
     import pymssql
     from datetime import datetime
     global cnx, mssql_params
-
+    
+    # Este query obtiene información sobre las ambulancias:
+    # - Su ID .
+    # - La fecha de su próximo mantenimiento .
+    # - El kilometraje más reciente registrado , obtenido del último viaje
+    #   que tenga un valor de kilometraje final  no nulo, ordenado por la fecha de finalización del viaje.
     query = """
         SELECT 
             a.IdAmbulancia,

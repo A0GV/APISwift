@@ -76,7 +76,7 @@ def crud_delete():
     MSSql.sql_delete_where('users', d_where)
     return make_response(jsonify('ok'))
 
-@app.route("/demand/hours", methods=['GET'])
+@app.route("/horas/demanda", methods=['GET'])
 def demand_hours():
     try:
         # Llamar a la función de mysqlfunc para obtener los horarios con mayor demanda
@@ -85,7 +85,7 @@ def demand_hours():
     except Exception as e:
         return make_response(jsonify({"error": str(e)}), 500)
 
-@app.route("/operators/most-transfers", methods=['GET'])
+@app.route("/operador/mas-traslados", methods=['GET'])
 def operators_most_transfers():
     try:
         # Llamar a la función de mysqlfunc para obtener los operadores con más traslados
@@ -94,7 +94,7 @@ def operators_most_transfers():
     except Exception as e:
         return make_response(jsonify({"error": str(e)}), 500)
 
-@app.route("/transfers/monthly-percentages", methods=['GET'])
+@app.route("/traslado/porcentajes", methods=['GET'])
 def monthly_transfer_percentages():
     try:
         # Llamar a la función de mysqlfunc para obtener los porcentajes mensuales de traslados
@@ -103,7 +103,7 @@ def monthly_transfer_percentages():
     except Exception as e:
         return make_response(jsonify({"error": str(e)}), 500)
 
-@app.route("/transfers/weekly-status", methods=['GET'])
+@app.route("/traslado/statussemana", methods=['GET'])
 def weekly_transfer_status():
     try:
         # Llamar a la función de mysqlfunc para obtener el estado semanal de los traslados
