@@ -383,7 +383,7 @@ def get_maintenance():
         return [
             {
                 "IdAmbu": f"Ambulancia {row['IdAmbulancia']}",
-                "dMant": f"{dias_para_mantenimiento(row["dProxMantenimiento"])} dias",
+                "dMant": f"{dias_para_mantenimiento(row['dProxMantenimiento'])} dias",
                 "KmActual": row["KmActual"] if row["KmActual"] is not None else 0
             }
             for row in rows
@@ -517,6 +517,7 @@ def get_proximo_numero_solicitud():
 def crear_solicitud_completa(data):
     import pymssql
     global cnx, mssql_params
+    from datetime import datetime
     
     try:
         # Insertar en Traslado
@@ -527,7 +528,8 @@ def crear_solicitud_completa(data):
             'IdUbiOrigen': data['IdUbiOrigen'],
             'IdUbiDest': data['IdUbiDest'],
             'vcRazon': data['vcRazon'],
-            'IdEstatus': 1  # Siempre empieza como "Solicitado"
+            'IdEstatus': 1,  # Siempre empieza como "Solicitado"
+            'dtFechaCreacion': datetime.now()  # Agregar fecha de creación
         }
         
         id_traslado = sql_insert_row_into('Traslado', traslado_data)
@@ -617,49 +619,3 @@ def get_traslados(params):
     except Exception as e:
         raise TypeError("get_traslados:%s" % e)
 
-
-if __name__ == '__main__':
-    import json
-    mssql_params = {}
-    mssql_params['DB_HOST'] = '100.80.80.7' #'10.14.255.41 es la IP para acceder desde fuera' 
-    mssql_params['DB_NAME'] = 'nova'
-    mssql_params['DB_USER'] = 'SA'
-    mssql_params['DB_PASSWORD'] = 'Shakira123.'
-    cnx = mssql_connect(mssql_params)
-    
-    # Do your thing
-    try:
-        rx = sql_read_all('Socios')
-        print(json.dumps(rx, indent=4))
-        input("press Enter to continue...")
-        rx = read_user_data('users', 'hugo')
-        print(rx)
-        input("press Enter to continue...")
-        print("Querying for user 'paco'...")
-        d_where = {'username': 'paco'}
-        rx = sql_read_where('users', d_where)
-        print(rx)
-        input("press Enter to continue...")
-        print("Inserting user 'otro'...")
-        rx = sql_insert_row_into('users',{'username': 'otro', 'password': 'otro123'})
-        print("Inserted record", rx)
-        rx = sql_read_all('users')
-        print(json.dumps(rx, indent=4))
-        input("press Enter to continue...")
-        print("Modifying password for user 'otro'...")
-        d_field = {'password': 'otro456'}
-        d_where = {'username': 'otro'}
-        sql_update_where('users', d_field, d_where)
-        print("Record updated")
-        rx = sql_read_all('users')
-        print(json.dumps(rx, indent=4))
-        input("press Enter to continue...")
-        print("Deleting user 'otro'...")
-        d_where = {'username': 'otro'}
-        sql_delete_where('users', d_where)
-        print("Record deleted")
-        rx = sql_read_all('users')
-        print(json.dumps(rx, indent=4))
-    except Exception as e:
-        print(e)
-    cnx.close()

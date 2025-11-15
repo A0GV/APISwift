@@ -328,29 +328,6 @@ def viajekm_update():
     MSSql.sql_update_where('Viaje', d_field, d_where)
     return make_response(jsonify('ok'))
 
-
-
-"""
-Endpoints de traslados - Cristian Luque
-"""
-
-def queryParams(*claves):
-    params = {}
-    for clave in claves:
-        if request.args.get(clave) is not None:
-            params[clave] = request.args.get(clave)
-    return params
-
-@app.route("/traslados", methods=['GET'])
-def traslados():
-    params = queryParams('fechaInit', 'fechaFin', 'estado', 'operador', 'paciente', 'idAmbulancia')
-
-    try:
-        results = MSSql.get_traslados(params)
-        return make_response(jsonify(results))
-    except Exception as e:
-        return make_response(jsonify({"error": str(e)}), 500)
-    
     
 #Sacar el traslado por el dia
 #/tdia?date='2025-11-14'&&idOperador=2
@@ -378,6 +355,31 @@ def dMantenimiento():
         return make_response(jsonify({"error": str(e)}), 500)
 
 # ========== ENDPOINTS DE LOGIN ==========
+@app.route("/api/login/operador", methods=['POST'])
+def login_operador_post():
+    data = request.json
+    id_usuario = data.get('idUsuario', None)
+    vc_codigo = data.get('codigo', None)
+    
+    if not id_usuario or not vc_codigo:
+        return make_response(jsonify({'error': 'Se requieren el id del Usuario y su contraseña'}), 400)
+    try:
+        # Primero buscar el usuario
+        usuario = MSSql.sql_read_where('Usuarios', {'IdUsuario': id_usuario, 'IdTipoPersonal': 1})
+        if not usuario:
+            return make_response(jsonify({'error': 'Credenciales inválidas o permisos insuficientes'}), 401)
+        
+        # Obtener el IdPass del usuario
+        id_pass = usuario[0]['IdPass']
+        # Verificar la contraseña
+        password_record = MSSql.sql_read_where('Pass', {'IdPass': id_pass, 'vcCodigoUsuario': vc_codigo})
+        if password_record:
+            return make_response(jsonify({'IdUsuario': int(id_usuario), 'message': 'Login exitoso'}), 200)
+        else:
+            return make_response(jsonify({'error': 'Credenciales inválidas o permisos insuficientes'}), 401)
+
+    except Exception as e:
+        return make_response(jsonify({'error': str(e)}), 500)
 
 # Login para OPERADORES (IdTipoPersonal = 1)
 @app.route("/api/login/operador", methods=['GET'])
