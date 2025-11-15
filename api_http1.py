@@ -492,4 +492,21 @@ if __name__ == '__main__':
     print ("Running API...")
     app.run(host='0.0.0.0', port=10204, debug=True)
 
-
+# GET notificaciones del operador
+@app.route("/api/notificaciones", methods=['GET'])
+def obtener_notificaciones():
+    try:
+        # Obtener parámetro de query directamente
+        id_usuario_operador = request.args.get('IdUsuarioOperador')
+        
+        # Validar que venga el parámetro requerido
+        if id_usuario_operador is None:
+            return make_response(jsonify({'error': 'Falta el parámetro IdUsuarioOperador'}), 400)
+        
+        # Llamar a la función de mysqlfunc
+        result = MSSql.obtener_notificaciones_operador(id_usuario_operador)
+        
+        return make_response(jsonify(result), 200)
+        
+    except Exception as e:
+        return make_response(jsonify({'error': str(e)}), 500)
