@@ -41,3 +41,12 @@ class TrasladoQueryParams(BaseModel):
     def validar_fechas_estado(cls, values):
         if(values.fechaInicio and values.fechaFin and values.fechaInicio > values.fechaFin):
             raise ValueError("La fecha de fin debe suceder después de la fecha de inicio")    
+
+class NotificacionesOperador(BaseModel):
+    idOperador: int = Field(..., description="ID del operador")
+    limite: bool = Field(..., description="Indica cuantas notificaciones traer")
+
+    @field_validator('limite')
+    def validar_limites_notificaciones(cls, value):
+        if (value > 50):
+            raise ValueError("No se pueden solicitar más de 50 notificaciones")
