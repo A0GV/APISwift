@@ -163,23 +163,21 @@ def sql_read_next_trip(id_operador):
 
     query = """
         SELECT TOP (1)
-            t.IdTraslado,
-            t.IdUsuarioOperador,
-            t.IdNumeroSocio,
-            t.IdTipoTraslado,
-            t.IdUbiOrigen,
-            t.IdUbiDest,
-            t.vcRazon,
-            t.IdEstatus,
-            t.dtFechaCreacion,
             v.IdViaje,
             v.dtFechaInicio,
             v.dtFechaFin,
             v.IdAmbulancia,
-            v.fKmInicio,
-            v.fKmFinal
+            t.IdTraslado,
+            t.IdEstatus,
+            t.vcRazon,
+            uo.vcDomicilio AS vcOrigen,     -- Cambié a vcOrigen para que coincida con el modelo
+            ud.vcDomicilio AS vcDestino,   -- Cambié a vcDestino para que coincida con el modelo
+            CONCAT(s.vcNombre, ' ', s.vcApellidoPaterno, ' ', ISNULL(s.vcApellidoMaterno, '')) AS vcPaciente
         FROM Traslado t
         LEFT JOIN Viaje v ON v.IdTraslado = t.IdTraslado
+        LEFT JOIN Ubicacion uo ON t.IdUbiOrigen = uo.IdUbicacion
+        LEFT JOIN Ubicacion ud ON t.IdUbiDest = ud.IdUbicacion
+        LEFT JOIN Socios s ON t.IdNumeroSocio = s.IdNumeroSocio  -- Agregué JOIN para el paciente
         WHERE t.IdEstatus = 1
           AND t.IdUsuarioOperador = %s
         ORDER BY t.dtFechaCreacion ASC;
