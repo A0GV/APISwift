@@ -628,7 +628,7 @@ def get_traslados(params):
     except Exception as e:
         raise TypeError("get_traslados:%s" % e)
 
-def obtener_notificaciones_operador(id_usuario_operador):
+def obtener_notificaciones_operador(id_usuario_operador, limit):
     from datetime import datetime
     global cnx, mssql_params
     
@@ -683,7 +683,7 @@ def obtener_notificaciones_operador(id_usuario_operador):
             tiempo_hasta_inicio = (dt_inicio - ahora).total_seconds()
             
             # Determinar msj, prioridad y trasladoAgendado
-            if 0 < tiempo_hasta_inicio <= 7200:  # 2 horas en segundos
+            if 0 < tiempo_hasta_inicio <= 3600:  # 1 hora en segundos
                 msj = "Traslado por comenzar"
                 prioridad = 1
                 traslado_agendado = False
@@ -728,6 +728,8 @@ def obtener_notificaciones_operador(id_usuario_operador):
             key=lambda x: (x['prioridad'], -datetime.fromisoformat(x['dtFechaCreacion']).timestamp())
         )
         
+        if limit < len(notificaciones_ordenadas):
+            return notificaciones_ordenadas[:limit]
         return notificaciones_ordenadas
         
     except Exception as e:

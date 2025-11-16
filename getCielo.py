@@ -62,6 +62,61 @@ def get_tras_dias(date, idOperador):
     except Exception as e:
         raise TypeError("get_tras_dias:%s" % e)
 
+def get_tras_dias_2(date, idOperador):
+    import pymssql
+    global cnx, mssql_params
+
+    query = """
+        SELECT
+            v.dtFechaInicio AS inicio,
+            v.dtFechaFin AS fin,
+            v.IdAmbulancia AS amb,
+            v.IdViaje AS viaje, 
+            v.fKmInicio AS kmInicial, 
+            t.IdTraslado AS traslado,
+            e.vcEstatus AS estatus,
+            s.vcNombre AS nombreSocio,
+            s.vcApellidoPaterno AS apellido1,
+            s.vcApellidoMaterno AS apellido2,
+            uo.vcDomicilio AS OrigenDomicilio,
+            ud.vcDomicilio AS DestinoDomicilio,
+            tt.vcTipo AS tipo
+        FROM dbo.Viaje v
+        JOIN dbo.Traslado t ON t.IdTraslado = v.IdTraslado
+        JOIN dbo.Socios s ON t.IdNumeroSocio = s.IdNumeroSocio 
+        JOIN dbo.Ubicacion uo ON t.IdUbiOrigen = uo.IdUbicacion
+        JOIN dbo.Ubicacion ud ON t.IdUbiDest = ud.IdUbicacion
+        JOIN dbo.TipoTraslado tt ON t.IdTipoTraslado = tt.IdTipoTraslado
+        JOIN dbo.Estatus e ON t.IdEstatus = e.IdEstatus
+        WHERE CAST(v.dtFechaInicio AS DATE) = %s 
+            AND t.IdUsuarioOperador = %s
+            AND e.vcEstatus = 'Solicitado'
+            AND v.fKmInicio IS NULL  
+        ORDER BY v.dtFechaInicio ASC;
+
+    """
+    
+    try:
+        try:
+            cursor = cnx.cursor(as_dict=True)
+            cursor.execute(query, (date, idOperador))
+
+        except pymssql._pymssql.InterfaceError:
+            print("reconnecting...")
+            cnx = mssql_connect(mssql_params)
+
+            cursor = cnx.cursor(as_dict=True)
+            cursor.execute(query, (date, idOperador))
+
+        rows = cursor.fetchall()
+        cursor.close()
+        if len(rows) == 0:
+            return {}
+        return rows[0]
+
+    except Exception as e:
+        raise TypeError("get_tras_dias:%s" % e)
+
 
 if __name__ == '__main__':
     import json

@@ -344,6 +344,21 @@ def diaTras():
     except Exception as e:
         return make_response(jsonify({'error': str(e)}), 500)
 
+@app.route("/tdia/<int:idOperador>", methods=['GET'])
+def diaTras2(idOperador):
+    try:
+        date = request.args.get('date')             
+        ovj = diatras.get_tras_dias_2(date, idOperador)
+        #Para regresar la lista aunque este vacia porque lo del operador se checa en backend no aqui
+        #Pero al regresar una vacia, se checa si esta empty la lista que recibe y ya 
+
+        if(ovj is None):
+            return make_response(jsonify({}))
+        ovj["activo"] = ovj["estatus"] == "En proceso"
+        return make_response(jsonify(ovj))
+    except Exception as e:
+        return make_response(jsonify({'error': str(e)}), 500)
+
 
 @app.route("/ambulancias/mantenimiento", methods=['GET'])
 def dMantenimiento():
@@ -452,6 +467,23 @@ def next_trip():
     except Exception as e:
         return make_response(jsonify({"error": str(e)}), 500)
 
+# GET notificaciones del operador
+@app.route("/api/notificaciones/<int:idOperador>", methods=['GET'])
+def obtener_notificaciones(idOperador):
+    
+    limite = request.args.get("limite", None)
+    from models import NotificacionesOperador
+    validated_params = NotificacionesOperador(idOperador = idOperador, limite = limite)
+    params = validated_params.dict(exclude_none=True)
+
+    try:
+        result = MSSql.obtener_notificaciones_operador(idOperador, validated_params.limite)
+        
+        return make_response(jsonify(result), 200)
+        
+    except Exception as e:
+        return make_response(jsonify({'error': str(e)}), 500)
+
 
 # ========== ENDPOINTS DE TRASLADOS ============
 @app.route("/traslados", methods=['GET'])
@@ -488,25 +520,7 @@ def traslados():
         return make_response(jsonify(results))
     except Exception as e:
         return make_response(jsonify({"error": str(e)}), 500)
+        
 if __name__ == '__main__':
     print ("Running API...")
     app.run(host='0.0.0.0', port=10204, debug=True)
-
-# GET notificaciones del operador
-@app.route("/api/notificaciones", methods=['GET'])
-def obtener_notificaciones():
-    try:
-        # Obtener parámetro de query directamente
-        id_usuario_operador = request.args.get('IdUsuarioOperador')
-        
-        # Validar que venga el parámetro requerido
-        if id_usuario_operador is None:
-            return make_response(jsonify({'error': 'Falta el parámetro IdUsuarioOperador'}), 400)
-        
-        # Llamar a la función de mysqlfunc
-        result = MSSql.obtener_notificaciones_operador(id_usuario_operador)
-        
-        return make_response(jsonify(result), 200)
-        
-    except Exception as e:
-        return make_response(jsonify({'error': str(e)}), 500)

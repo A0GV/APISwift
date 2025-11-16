@@ -44,9 +44,13 @@ class TrasladoQueryParams(BaseModel):
 
 class NotificacionesOperador(BaseModel):
     idOperador: int = Field(..., description="ID del operador")
-    limite: bool = Field(..., description="Indica cuantas notificaciones traer")
+    limite: Optional[int] = Field(None, description="Indica cuantas notificaciones traer")
 
     @field_validator('limite')
     def validar_limites_notificaciones(cls, value):
-        if (value > 50):
-            raise ValueError("No se pueden solicitar más de 50 notificaciones")
+        if value is None: 
+            return 20
+        if (value > 20):
+            raise ValueError("No se pueden solicitar más de 20 notificaciones")
+        return value
+        
