@@ -95,7 +95,7 @@ def sql_update_start_trip(IdViaje, IdTraslado, fKmInicio):
         
         UPDATE Traslado
         SET IdEstatus = 2
-        WHERE l = %s;
+        WHERE IdTraslado = %s;
     """
     
     try:
