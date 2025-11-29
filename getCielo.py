@@ -117,6 +117,39 @@ def get_tras_dias_2(date, idOperador):
     except Exception as e:
         raise TypeError("get_tras_dias:%s" % e)
 
+def get_completados(dateinicio, datefinal, idOperador):
+    import pymssql
+    global cnx, mssql_params
+    query = """
+    SELECT 
+        COUNT(*) AS TotalTraslados
+    FROM dbo.Viaje v
+    JOIN dbo.Traslado t ON t.IdTraslado = v.IdTraslado
+    WHERE CAST(v.dtFechaInicio AS DATE) BETWEEN %s AND %s
+        AND t.IdUsuarioOperador = %s
+    GROUP BY t.IdUsuarioOperador;
+    """
+    try:
+        try:
+            cursor = cnx.cursor(as_dict=True)
+            cursor.execute(query, (dateinicio, datefinal, idOperador))
+
+        except pymssql._pymssql.InterfaceError:
+            print("reconnecting...")
+            cnx = mssql_connect(mssql_params)
+
+            cursor = cnx.cursor(as_dict=True)
+            cursor.execute(query, (idOperador))
+
+        rows = cursor.fetchall()
+        cursor.close()
+        if len(rows) == 0:
+            return {}
+        return rows[0]
+
+    except Exception as e:
+        raise TypeError("get_completados:%s" % e)
+
 
 if __name__ == '__main__':
     import json
