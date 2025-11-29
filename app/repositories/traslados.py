@@ -305,7 +305,7 @@ def get_completados(params):
     SELECT COUNT(*) AS TotalTraslados
     FROM dbo.Viaje v
     JOIN dbo.Traslado t ON t.IdTraslado = v.IdTraslado
-    WHERE 1 = 1
+    WHERE t.IdEstatus = 2
     """
     conditions = []
     values = []
