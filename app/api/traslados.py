@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request, make_response
 from pydantic import ValidationError
-from ..repositories.traslados import get_traslados, get_tras_dias, get_tras_dias_2, sql_read_trip_details, get_estatus_tras, get_completados
+from ..repositories.traslados import get_traslados, get_tras_dias, get_tras_dias_2, sql_read_trip_details, get_estatus_tras, get_completados, sql_read_today_coordi
 
 traslados_bp = Blueprint("traslados", __name__, url_prefix="/api/traslados")
 
@@ -109,6 +109,24 @@ def get_esta_tras():
         idOperador = request.args.get('idOperador') 
         
         ovj = get_estatus_tras(date, idOperador)
+        return make_response(jsonify(ovj))
+    except Exception as e:
+        return make_response(jsonify({'error': str(e)}), 500)
+
+# /viajesCoord?date=2025-11-28
+@traslados_bp.route("/viajesCoord", methods=['GET'])
+def viajesPrev():
+    '''date = request.args.get('date', type=str)
+    if date is None:
+        return make_response(jsonify({"error": "date query parameter is required"}), 400)
+    try:
+        rows = home.sql_read_today_coordi(date)
+        return make_response(jsonify(rows))
+    except Exception as e:
+        return make_response(jsonify({"error": str(e)}), 500)'''
+    try:
+        date = request.args.get('date')             
+        ovj = sql_read_today_coordi(date)
         return make_response(jsonify(ovj))
     except Exception as e:
         return make_response(jsonify({'error': str(e)}), 500)

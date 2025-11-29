@@ -335,8 +335,6 @@ def get_completados(dateinicio, datefinal, idOperador):
         raise TypeError("get_completados:%s" % e)
 
 def get_estatus_tras(date, idOperador):
-    import pymssql
-    global cnx, mssql_params
     query = """
     SELECT 
         e.vcEstatus AS Estatus,
@@ -372,3 +370,53 @@ def get_estatus_tras(date, idOperador):
 
     except Exception as e:
         raise TypeError("get_estatus_tras:%s" % e)
+
+# Home de coordi
+def sql_read_today_coordi(date):
+
+    
+    # Raw query, just parameterized
+    read = """
+        SELECT
+            v.IdViaje, -- Para mandar detalle del viaje 
+            v.dtFechaInicio,
+            v.dtFechaFin,
+            v.IdAmbulancia,
+            v.IdUsuarioCoord,  
+            u.vcNombre, 
+            u.vcApellidoPaterno, 
+            u.vcApellidoMaterno,
+            uo.vcDomicilio AS OrigenDomicilio,
+            ud.vcDomicilio AS DestinoDomicilio, 
+            t.IdTraslado, 
+            e.IdEstatus,
+            e.vcEstatus, 
+            tp.vcTipo
+        FROM dbo.Viaje v
+        JOIN dbo.Traslado t ON t.IdTraslado = v.IdTraslado
+        JOIN dbo.TipoTraslado tp ON tp.IdTipoTraslado = t.IdTipoTraslado
+        JOIN dbo.Ubicacion uo ON t.IdUbiOrigen = uo.IdUbicacion
+        JOIN dbo.Ubicacion ud ON t.IdUbiDest = ud.IdUbicacion
+        JOIN dbo.Estatus e ON t.IdEstatus = e.IdEstatus
+        -- Datos de coordi 
+        JOIN dbo.Usuarios u ON v.IdUsuarioCoord = u.IdUsuario
+        WHERE CAST(v.dtFechaInicio AS DATE) = %s 
+            AND e.IdEstatus = 1 
+        ORDER BY v.dtFechaInicio ASC;
+        """ # Sending the %s as the date
+
+    try:
+        try:
+            cnx = db.get_mssql_connection()
+            cursor = cnx.cursor(as_dict=True)
+            cursor.execute(read, (date,)) # Adds date  
+        except pymssql._pymssql.InterfaceError:
+            print("reconnecting...")
+            cnx = db.reconnect()
+            cursor = cnx.cursor(as_dict=True)
+            cursor.execute(read, (date,))
+        a = cursor.fetchall()
+        cursor.close()
+        return a
+    except Exception as e:
+        raise TypeError("sql_read_today_coordi:%s" % e)    
