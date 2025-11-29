@@ -300,39 +300,46 @@ def sql_update_quick_end(IdViaje, IdTraslado, fKmFinal):
     except Exception as e:
         raise TypeError("sql_update_quick_end: %s" % e)
 
-def get_completados(dateinicio, datefinal, idOperador):
-    import pymssql
-    global cnx, mssql_params
+def get_completados(params):
     query = """
-    SELECT 
-        COUNT(*) AS TotalTraslados
+    SELECT COUNT(*) AS TotalTraslados
     FROM dbo.Viaje v
     JOIN dbo.Traslado t ON t.IdTraslado = v.IdTraslado
-    WHERE CAST(v.dtFechaInicio AS DATE) BETWEEN %s AND %s
-        AND t.IdUsuarioOperador = %s
-    GROUP BY t.IdUsuarioOperador;
+    WHERE 1 = 1
     """
+    conditions = []
+    values = []
+
+    if "dateinicio" in params and "datefinal" in params:
+        conditions.append("AND CAST(v.dtFechaInicio AS DATE) BETWEEN %s AND %s")
+        values.append(params["dateinicio"])
+        values.append(params["datefinal"])
+
+    if "idOperador" in params:
+        conditions.append("AND t.IdUsuarioOperador = %s")
+        values.append(params["idOperador"])
+
+    query += ' '.join(conditions)
+
     try:
         try:
             cnx = db.get_mssql_connection()
             cursor = cnx.cursor(as_dict=True)
-            cursor.execute(query, (dateinicio, datefinal, idOperador))
+            cursor.execute(query, tuple(values))
 
         except pymssql._pymssql.InterfaceError:
             print("reconnecting...")
             cnx = db.reconnect()
-
             cursor = cnx.cursor(as_dict=True)
-            cursor.execute(query, (idOperador))
+            cursor.execute(query, tuple(values))
 
-        rows = cursor.fetchall()
+        result = cursor.fetchone()
         cursor.close()
-        if len(rows) == 0:
-            return {}
-        return rows[0]
+        return result
 
     except Exception as e:
         raise TypeError("get_completados:%s" % e)
+
 
 def get_estatus_tras(date, idOperador):
     query = """

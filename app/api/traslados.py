@@ -93,13 +93,23 @@ def detallesTraslado():
 def get_completador():
     try:
         dateinicio = request.args.get('dateinicio')
-        datefinal = request.args.get('datefinal')             
-        idOperador = request.args.get('idOperador') 
+        datefinal = request.args.get('datefinal')
+        idOperador = request.args.get('idOperador')
         
-        ovj = get_completados(dateinicio, datefinal, idOperador)
+        params = {}
+
+        if dateinicio and datefinal:
+            params["dateinicio"] = dateinicio
+            params["datefinal"] = datefinal
+
+        if idOperador:
+            params["idOperador"] = idOperador
+
+        ovj = get_completados(params)
         return make_response(jsonify(ovj))
     except Exception as e:
         return make_response(jsonify({'error': str(e)}), 500)
+
 
 #/estatus?date=2025-11-18&idOperador=2
 @traslados_bp.route("/estatus", methods=['GET'])
