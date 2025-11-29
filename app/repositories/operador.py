@@ -26,16 +26,17 @@ def sql_read_next_trip(id_operador):
     """
 
     try:
-        cnx = db.get_mssql_connection()
-        cursor = cnx.cursor(as_dict=True)
-        cursor.execute(query, (id_operador,))
-    except pymssql._pymssql.InterfaceError:
-        print("Reconnecting to SQL Server...")
-        cnx = db.reconnect()
-        cursor = cnx.cursor(as_dict=True)
-        cursor.execute(query, (id_operador,))
+        try:
+            cnx = db.get_mssql_connection()
+            cursor = cnx.cursor(as_dict=True)
+            cursor.execute(query, (id_operador,))
 
-    try:
+        except pymssql._pymssql.InterfaceError:
+            print("Reconnecting to SQL Server...")
+            cnx = db.reconnect()
+            cursor = cnx.cursor(as_dict=True)
+            cursor.execute(query, (id_operador,))
+            
         result = cursor.fetchall()
         cursor.close()
         return result
@@ -55,18 +56,19 @@ def get_user_data(idOperador):
             AND o.IdTipoPersonal = 1
     """
     try:
-        cnx = db.get_mssql_connection()
-        cursor = cnx.cursor(as_dict=True)
-        cursor.execute(query, (idOperador,))
-    except pymssql._pymssql.InterfaceError:
-        print("Reconnecting to SQL Server...")
-        cnx = db.reconnect()
-        cursor = cnx.cursor(as_dict=True)
-        cursor.execute(query, (idOperador,))
-    
-    try:
+        try:
+            cnx = db.get_mssql_connection()
+            cursor = cnx.cursor(as_dict=True)
+            cursor.execute(query, (idOperador,))
+        except pymssql._pymssql.InterfaceError:
+            print("Reconnecting to SQL Server...")
+            cnx = db.reconnect()
+            cursor = cnx.cursor(as_dict=True)
+            cursor.execute(query, (idOperador,))
         result = cursor.fetchone()
         cursor.close()
         return result
     except Exception as e:
-        raise TypeError(f"get_user_data: {e}")
+        raise TypeError("get_user_data: %s" % e)
+        
+    
