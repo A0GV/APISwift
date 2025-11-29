@@ -62,19 +62,6 @@ def kmAmbPrev():
     except Exception as e:
         return make_response(jsonify({"error": str(e)}), 500)
 
-# GET para los detalles de un traslado
-# Call /traslado/detallesTraslado?IdTraslado=? change the ?
-@main_bp.route("/traslado/detallesTraslado", methods=['GET'])
-def detallesTraslado():
-    IdTraslado = request.args.get('IdTraslado', type=int)
-    if IdTraslado is None:
-        return make_response(jsonify({"error": "IdTraslado query parameter is required"}), 400)
-    try:
-        # Uses rows entcs como lista de diccionarios
-        rows = sql_read_trip_details(IdTraslado)
-        return make_response(jsonify(rows))
-    except Exception as e:
-        return make_response(jsonify({"error": str(e)}), 500)
 
 # PUT Starts the trip by setting initial km and setting status as 2, viaje tiene q ya existir para funcionar Moni
 #Postman structure: 

@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request, make_response
 from pydantic import ValidationError
-from ..repositories.traslados import get_traslados, get_tras_dias, get_tras_dias_2
+from ..repositories.traslados import get_traslados, get_tras_dias, get_tras_dias_2, sql_read_trip_details
 
 traslados_bp = Blueprint("traslados", __name__, url_prefix="/api/traslados")
 
@@ -72,3 +72,18 @@ def diaTras2(idOperador):
         return make_response(jsonify(ovj))
     except Exception as e:
         return make_response(jsonify({'error': str(e)}), 500)
+    
+
+# GET para los detalles de un traslado
+# Call /traslado/detallesTraslado?IdTraslado=? change the ?
+@traslados_bp.route("/detalles", methods=['GET'])
+def detallesTraslado():
+    IdTraslado = request.args.get('IdTraslado', type=int)
+    if IdTraslado is None:
+        return make_response(jsonify({"error": "IdTraslado query parameter is required"}), 400)
+    try:
+        # Uses rows entcs como lista de diccionarios
+        rows = sql_read_trip_details(IdTraslado)
+        return make_response(jsonify(rows))
+    except Exception as e:
+        return make_response(jsonify({"error": str(e)}), 500)
