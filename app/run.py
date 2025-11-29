@@ -4,4 +4,4 @@ app = create_app()
 
 if __name__ == "__main__":
     print ("Running API...")
-    app.run(host='0.0.0.0', port=10205, debug=True)
+    app.run(host='0.0.0.0', port=10204, debug=True)
