@@ -1,6 +1,8 @@
 import pymssql 
+import boto3
 
 cnx = None
+
 class MSSqlClient:
     def __init__(self):
         self.creds = None
@@ -44,3 +46,19 @@ class MSSqlClient:
     
 
 db = MSSqlClient()
+
+
+class S3Client:
+    def __init__(self):
+        self.s3 = None
+
+    def init_app(self, config):
+        self.s3 = boto3.client(
+            's3',
+            aws_access_key_id=config['AWS_ACCESS_KEY_ID'],
+            aws_secret_access_key=config['AWS_SECRET_ACCESS_KEY'],
+            region_name=config['AWS_REGION']
+        )
+        return self.s3
+    
+s3 = S3Client()

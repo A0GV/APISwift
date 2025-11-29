@@ -1,7 +1,7 @@
 from flask import jsonify, make_response, request, Blueprint
 from ..repositories.estadisticas import get_demand_hours, get_operators_with_most_transfers, get_monthly_transfer_percentages, get_weekly_transfer_status
-from ..repositories.ambulancias import sql_read_last_amt_km, get_tipo_ambulancia_por_id
-from ..repositories.traslados import sql_read_trip_details, sql_update_start_trip, sql_update_end_trip
+from ..repositories.ambulancias import sql_read_last_amt_km
+from ..repositories.traslados import sql_update_start_trip, sql_update_end_trip
 from ..repositories.mysqlfunc import sql_read_all, sql_read_where, sql_update_where
 
 main_bp = Blueprint("main", __name__)

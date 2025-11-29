@@ -1,4 +1,5 @@
 from ..extensions import db
+
 import pymssql
 
 def sql_read_next_trip(id_operador):
@@ -40,4 +41,32 @@ def sql_read_next_trip(id_operador):
         return result
     except Exception as e:
         raise TypeError(f"sql_read_next_trip: {e}")
+
+def get_user_data(idOperador):
+    query = """
+            SELECT 
+                o.vcNombre,
+                o.vcApellidoPaterno,
+                o.vcApellidoMaterno,
+                o.vcApodo,
+                o.vcFotoPerfil
+            FROM Usuarios o
+            WHERE o.IdUsuario = %s
+            AND o.IdTipoPersonal = 1
+    """
+    try:
+        cnx = db.get_mssql_connection()
+        cursor = cnx.cursor(as_dict=True)
+        cursor.execute(query, (idOperador,))
+    except pymssql._pymssql.InterfaceError:
+        print("Reconnecting to SQL Server...")
+        cnx = db.reconnect()
+        cursor = cnx.cursor(as_dict=True)
+        cursor.execute(query, (idOperador,))
     
+    try:
+        result = cursor.fetchone()
+        cursor.close()
+        return result
+    except Exception as e:
+        raise TypeError(f"get_user_data: {e}")
