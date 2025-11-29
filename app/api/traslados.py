@@ -88,7 +88,7 @@ def detallesTraslado():
     except Exception as e:
         return make_response(jsonify({"error": str(e)}), 500)
     
-#/api/completados?dateinicio=2025-11-01&datefinal=2025-11-18&idOperador=2
+#/completados?dateinicio=2025-11-01&datefinal=2025-11-18&idOperador=2
 @traslados_bp.route("/completados", methods=['GET'])
 def get_completador():
     try:
@@ -101,7 +101,7 @@ def get_completador():
     except Exception as e:
         return make_response(jsonify({'error': str(e)}), 500)
 
-#/api/estatustraslados?date=2025-11-18&idOperador=2
+#/estatus?date=2025-11-18&idOperador=2
 @traslados_bp.route("/estatus", methods=['GET'])
 def get_esta_tras():
     try:
