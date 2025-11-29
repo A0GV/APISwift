@@ -9,7 +9,7 @@ import sys
 from app.extensions import db  # Esta es una instancia de la clase, todavía no está configurada
 
 mssql_params = {}
-mssql_params['DB_HOST'] = 'localhost'
+mssql_params['DB_HOST'] = '100.80.80.7'
 mssql_params['DB_NAME'] = 'nova'
 mssql_params['DB_USER'] = 'SA'
 mssql_params['DB_PASSWORD'] = 'Shakira123.' 
