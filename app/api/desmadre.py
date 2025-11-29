@@ -143,21 +143,6 @@ def get_tipos_traslado():
     except Exception as e:
         return make_response(jsonify({'error': str(e)}), 500)
 
-# GET tipo de ambulancia por ID de ambulancia
-@main_bp.route("/api/ambulancia/<int:idAmbulancia>/tipo", methods=['GET'])
-def get_tipo_ambulancia(idAmbulancia):
-    try:
-        # Llamar a la función de mysqlfunc para obtener el tipo de ambulancia
-        tipo = get_tipo_ambulancia_por_id(idAmbulancia)
-        
-        if tipo:
-            return make_response(jsonify(tipo))
-        else:
-            return make_response(jsonify({'error': 'Ambulancia no encontrada'}), 404)
-    except Exception as e:
-        return make_response(jsonify({'error': str(e)}), 500)
-
-
 # GET estatus
 @main_bp.route("/api/estatus", methods=['GET'])
 def get_estatus():

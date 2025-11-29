@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request, make_response
-from ..repositories.ambulancias import get_maintenance, get_ambulancias_disponibles
+from ..repositories.ambulancias import get_maintenance, get_ambulancias_disponibles, get_tipo_ambulancia_por_id
 from ..repositories.operador import sql_read_next_trip
 
 ambulancias_bp = Blueprint("ambulancias", __name__, url_prefix="/api/ambulancias")
@@ -44,3 +44,17 @@ def get_ambulancias_disponibles():
     except Exception as e:
         return make_response(jsonify({'error': str(e)}), 500)
 
+
+# GET tipo de ambulancia por ID de ambulancia
+@ambulancias_bp.route("/<int:idAmbulancia>/tipo", methods=['GET'])
+def get_tipo_ambulancia(idAmbulancia):
+    try:
+        # Llamar a la función de mysqlfunc para obtener el tipo de ambulancia
+        tipo = get_tipo_ambulancia_por_id(idAmbulancia)
+        
+        if tipo:
+            return make_response(jsonify(tipo))
+        else:
+            return make_response(jsonify({'error': 'Ambulancia no encontrada'}), 404)
+    except Exception as e:
+        return make_response(jsonify({'error': str(e)}), 500)
