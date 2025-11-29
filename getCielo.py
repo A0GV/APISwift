@@ -150,6 +150,42 @@ def get_completados(dateinicio, datefinal, idOperador):
     except Exception as e:
         raise TypeError("get_completados:%s" % e)
 
+def get_estatus_tras(date, idOperador):
+    import pymssql
+    global cnx, mssql_params
+    query = """
+    SELECT 
+        e.vcEstatus AS Estatus,
+        COUNT(*) AS TotalTraslados
+    FROM dbo.Viaje v
+    JOIN dbo.Traslado t ON t.IdTraslado = v.IdTraslado
+    JOIN dbo.TipoTraslado tp ON tp.IdTipoTraslado = t.IdTipoTraslado
+    JOIN dbo.Estatus e ON t.IdEstatus = e.IdEstatus
+    WHERE CAST(v.dtFechaInicio AS DATE) = %s
+        AND t.IdUsuarioOperador = %s
+    GROUP BY e.vcEstatus
+    ORDER BY TotalTraslados DESC;
+    """
+    try:
+        try:
+            cursor = cnx.cursor(as_dict=True)
+            cursor.execute(query, (date, idOperador))
+
+        except pymssql._pymssql.InterfaceError:
+            print("reconnecting...")
+            cnx = mssql_connect(mssql_params)
+
+            cursor = cnx.cursor(as_dict=True)
+            cursor.execute(query, (idOperador))
+
+        rows = cursor.fetchall()
+        cursor.close()
+        if len(rows) == 0:
+            return {}
+        return rows[0]
+
+    except Exception as e:
+        raise TypeError("get_estatus_tras:%s" % e)
 
 if __name__ == '__main__':
     import json

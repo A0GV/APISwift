@@ -344,7 +344,7 @@ def diaTras():
         return make_response(jsonify({'error': str(e)}), 500)
     
 #Sacar el traslado por el dia
-#/tdia?date='2025-11-14'&&idOperador=2
+#/api/completados?dateinicio=2025-11-01&datefinal=2025-11-18&idOperador=2
 @app.route("/api/completados", methods=['GET'])
 def get_completador():
     try:
@@ -353,6 +353,21 @@ def get_completador():
         idOperador = request.args.get('idOperador') 
         
         ovj = diatras.get_completados(dateinicio, datefinal, idOperador)
+        #Para regresar la lista aunque este vacia porque lo del operador se checa en backend no aqui
+        #Pero al regresar una vacia, se checa si esta empty la lista que recibe y ya 
+        return make_response(jsonify(ovj))
+    except Exception as e:
+        return make_response(jsonify({'error': str(e)}), 500)
+
+#Sacar el traslado por el dia
+#/api/estatustraslados?date=2025-11-18&idOperador=2
+@app.route("/api/estatustraslados", methods=['GET'])
+def get_esta_tras():
+    try:
+        date = request.args.get('date')             
+        idOperador = request.args.get('idOperador') 
+        
+        ovj = diatras.get_estatus_tras(date, idOperador)
         #Para regresar la lista aunque este vacia porque lo del operador se checa en backend no aqui
         #Pero al regresar una vacia, se checa si esta empty la lista que recibe y ya 
         return make_response(jsonify(ovj))
