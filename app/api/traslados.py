@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request, make_response
 from pydantic import ValidationError
-from ..repositories.traslados import get_traslados, get_tras_dias, get_tras_dias_2, sql_read_trip_details
+from ..repositories.traslados import get_traslados, get_tras_dias, get_tras_dias_2, sql_read_trip_details, get_estatus_tras, get_completados
 
 traslados_bp = Blueprint("traslados", __name__, url_prefix="/api/traslados")
 
@@ -87,3 +87,30 @@ def detallesTraslado():
         return make_response(jsonify(rows))
     except Exception as e:
         return make_response(jsonify({"error": str(e)}), 500)
+    
+#Sacar el traslado por el dia
+#/api/completados?dateinicio=2025-11-01&datefinal=2025-11-18&idOperador=2
+@traslados_bp.route("/completados", methods=['GET'])
+def get_completador():
+    try:
+        dateinicio = request.args.get('dateinicio')
+        datefinal = request.args.get('datefinal')             
+        idOperador = request.args.get('idOperador') 
+        
+        ovj = get_completados(dateinicio, datefinal, idOperador)
+        return make_response(jsonify(ovj))
+    except Exception as e:
+        return make_response(jsonify({'error': str(e)}), 500)
+
+#Sacar el traslado por el dia
+#/api/estatustraslados?date=2025-11-18&idOperador=2
+@traslados_bp.route("/estatus", methods=['GET'])
+def get_esta_tras():
+    try:
+        date = request.args.get('date')             
+        idOperador = request.args.get('idOperador') 
+        
+        ovj = get_estatus_tras(date, idOperador)
+        return make_response(jsonify(ovj))
+    except Exception as e:
+        return make_response(jsonify({'error': str(e)}), 500)

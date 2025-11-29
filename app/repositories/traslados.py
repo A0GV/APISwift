@@ -299,3 +299,76 @@ def sql_update_quick_end(IdViaje, IdTraslado, fKmFinal):
             return {"success": True, "message": "Ended trip con km final y estatus"}
     except Exception as e:
         raise TypeError("sql_update_quick_end: %s" % e)
+
+def get_completados(dateinicio, datefinal, idOperador):
+    import pymssql
+    global cnx, mssql_params
+    query = """
+    SELECT 
+        COUNT(*) AS TotalTraslados
+    FROM dbo.Viaje v
+    JOIN dbo.Traslado t ON t.IdTraslado = v.IdTraslado
+    WHERE CAST(v.dtFechaInicio AS DATE) BETWEEN %s AND %s
+        AND t.IdUsuarioOperador = %s
+    GROUP BY t.IdUsuarioOperador;
+    """
+    try:
+        try:
+            cnx = db.get_mssql_connection()
+            cursor = cnx.cursor(as_dict=True)
+            cursor.execute(query, (dateinicio, datefinal, idOperador))
+
+        except pymssql._pymssql.InterfaceError:
+            print("reconnecting...")
+            cnx = db.reconnect()
+
+            cursor = cnx.cursor(as_dict=True)
+            cursor.execute(query, (idOperador))
+
+        rows = cursor.fetchall()
+        cursor.close()
+        if len(rows) == 0:
+            return {}
+        return rows[0]
+
+    except Exception as e:
+        raise TypeError("get_completados:%s" % e)
+
+def get_estatus_tras(date, idOperador):
+    import pymssql
+    global cnx, mssql_params
+    query = """
+    SELECT 
+        e.vcEstatus AS Estatus,
+        COUNT(*) AS TotalTraslados
+    FROM dbo.Viaje v
+    JOIN dbo.Traslado t ON t.IdTraslado = v.IdTraslado
+    JOIN dbo.TipoTraslado tp ON tp.IdTipoTraslado = t.IdTipoTraslado
+    JOIN dbo.Estatus e ON t.IdEstatus = e.IdEstatus
+    WHERE CAST(v.dtFechaInicio AS DATE) = %s
+        AND t.IdUsuarioOperador = %s
+    GROUP BY e.vcEstatus
+    ORDER BY TotalTraslados DESC;
+    """
+    try:
+        try:
+            cnx = db.get_mssql_connection()
+            cursor = cnx.cursor(as_dict=True)
+            cursor.execute(query, (date, idOperador))
+
+        except pymssql._pymssql.InterfaceError:
+            print("reconnecting...")
+            cnx = db.reconnect()
+
+            cursor = cnx.cursor(as_dict=True)
+            cursor.execute(query, (idOperador))
+
+        rows = cursor.fetchall()
+        cursor.close()
+        if len(rows) == 0:
+            return []
+        return rows
+
+
+    except Exception as e:
+        raise TypeError("get_estatus_tras:%s" % e)
