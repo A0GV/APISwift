@@ -181,8 +181,9 @@ def get_estatus_tras(date, idOperador):
         rows = cursor.fetchall()
         cursor.close()
         if len(rows) == 0:
-            return {}
-        return rows[0]
+            return []
+        return rows
+
 
     except Exception as e:
         raise TypeError("get_estatus_tras:%s" % e)
