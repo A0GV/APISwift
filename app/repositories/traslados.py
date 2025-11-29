@@ -342,7 +342,6 @@ def get_completados(params):
 
 
 def get_estatus_tras(date, idOperador):
-    import pymssql
     query = """
     SELECT 
         e.vcEstatus AS Estatus,
@@ -356,32 +355,28 @@ def get_estatus_tras(date, idOperador):
     GROUP BY e.vcEstatus
     ORDER BY TotalTraslados DESC;
     """
-
     try:
-        cnx = db.get_mssql_connection()
-        cursor = cnx.cursor(as_dict=True)
-        cursor.execute(query, (date, idOperador))
-
-    except pymssql._pymssql.InterfaceError:
         try:
-            print("reconnecting...")
-            cnx = db.reconnect()
+            cnx = db.get_mssql_connection()
             cursor = cnx.cursor(as_dict=True)
             cursor.execute(query, (date, idOperador))
-        except Exception as e:
-            return None
+
+        except pymssql._pymssql.InterfaceError:
+            print("reconnecting...")
+            cnx = db.reconnect()
+
+            cursor = cnx.cursor(as_dict=True)
+            cursor.execute(query, (idOperador))
+
+        rows = cursor.fetchall()
+        cursor.close()
+        if len(rows) == 0:
+            return []
+        return rows
+
 
     except Exception as e:
-        return None
-
-    rows = cursor.fetchall()
-    cursor.close()
-
-    if len(rows) == 0:
-        return []
-
-    return rows
-
+        raise TypeError("get_estatus_tras:%s" % e)
 
 # Home de coordi
 def sql_read_today_coordi(date):
