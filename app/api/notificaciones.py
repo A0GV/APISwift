@@ -8,7 +8,7 @@ notificaciones_bp = Blueprint("notificaciones", __name__, url_prefix="/api/notif
 def obtener_notificaciones(idOperador):
     
     limite = request.args.get("limite", None)
-    from models.notificaciones import NotificacionesOperador
+    from ..models.notificaciones import NotificacionesOperador
     validated_params = NotificacionesOperador(idOperador = idOperador, limite = limite)
     # params = validated_params.model_dump(exclude_none=True)
 
@@ -26,7 +26,7 @@ def obtener_notificaciones(idOperador):
 def get_notificaciones_coordi():
     limit = request.args.get("limit", type=int)
     
-    from models.notificaciones import NotificacionesCoordi
+    from ..models.notificaciones import NotificacionesCoordi
 
     validated_params = NotificacionesCoordi(limit = limit)
     # params = validated_params.model_dump(exclude_none=True)
