@@ -4,7 +4,7 @@ from ..repositories.solicitudes import get_proximo_numero_solicitud, crear_solic
 solicitud_bp = Blueprint("solicitudes", __name__, url_prefix="/api/solicitud")
 
 # GET próximo número de solicitud
-@solicitud_bp.route("/api/solicitud/proximo-numero", methods=['GET'])
+@solicitud_bp.route("/proximo-numero", methods=['GET'])
 def get_proximo_numero():
     try:
         # Llamar a la función de mysqlfunc para obtener el próximo número
@@ -15,7 +15,7 @@ def get_proximo_numero():
 
 
 # POST crear solicitud (Traslado + Viaje)
-@solicitud_bp.route("/api/solicitud", methods=['POST'])
+@solicitud_bp.route("/", methods=['POST'])
 def crear_solicitud():
     try:
         data = request.json
