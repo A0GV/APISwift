@@ -4,12 +4,12 @@ from app.api.traslados import traslados_bp
 from app.api.desmadre import main_bp
 from app.api.ambulancias import ambulancias_bp
 from app.api.notificaciones import notificaciones_bp
-
+from app.api.quejas import quejas_bp
 import sys
 from app.extensions import db  # Esta es una instancia de la clase, todavía no está configurada
 
 mssql_params = {}
-mssql_params['DB_HOST'] = '100.80.80.7'
+mssql_params['DB_HOST'] = 'localhost'
 mssql_params['DB_NAME'] = 'nova'
 mssql_params['DB_USER'] = 'SA'
 mssql_params['DB_PASSWORD'] = 'Shakira123.' 
@@ -29,6 +29,7 @@ def create_app():
     app.register_blueprint(traslados_bp)
     app.register_blueprint(ambulancias_bp)
     app.register_blueprint(notificaciones_bp)
+    app.register_blueprint(quejas_bp)
     app.register_blueprint(main_bp)
 
     return app
