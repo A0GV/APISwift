@@ -621,7 +621,7 @@ def get_traslados(params):
             print("reconnecting...")
             cnx = mssql_connect(mssql_params)
             cursor = cnx.cursor(as_dict=True)
-            cursor.execute(query)
+            cursor.execute(query, tuple(values))
         results = cursor.fetchall()
         cursor.close()
         return results
@@ -642,19 +642,19 @@ def obtener_notificaciones_operador(id_usuario_operador, limit):
     try:
         # Query para obtener traslados con su información de viaje y ubicación
         query = """
-            SELECT 
+            SELECT  
                 t.IdTraslado,
                 t.dtFechaCreacion,
                 v.dtFechaInicio,
                 u.vcDomicilio,
                 t.IdEstatus
             FROM Traslado t
-            INNER JOIN Viaje v ON t.IdTraslado = v.IdTraslado
-            INNER JOIN Ubicacion u ON t.IdUbiDest = u.IdUbicacion
+            LEFT JOIN Viaje v ON t.IdTraslado = v.IdTraslado
+            LEFT JOIN Ubicacion u ON t.IdUbiDest = u.IdUbicacion
             WHERE t.IdUsuarioOperador = %s
-                AND t.IdEstatus IN (1, 2)
+            AND t.IdEstatus IN (1, 2)
             ORDER BY t.dtFechaCreacion DESC
-        """
+            """
         
         # Ejecutar query
         cursor = cnx.cursor(as_dict=True)
@@ -678,7 +678,11 @@ def obtener_notificaciones_operador(id_usuario_operador, limit):
                 dt_creacion = datetime.fromisoformat(dt_creacion)
             if isinstance(dt_inicio, str):
                 dt_inicio = datetime.fromisoformat(dt_inicio)
-            
+
+                
+            if dt_inicio is None or dt_creacion is None:
+                print(f"Fila con fechas nulas: {row}")
+                continue  # Saltar esta fila
             # Calcular tiempo hasta el inicio
             tiempo_hasta_inicio = (dt_inicio - ahora).total_seconds()
             
