@@ -1,5 +1,5 @@
 import pymssql
-from ..extensions import db
+from ...extensions import db
 
 def get_tras_dias(date, idOperador):
     query = """

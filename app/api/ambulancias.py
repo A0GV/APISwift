@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request, make_response
-from ..repositories.ambulancias import get_maintenance, get_ambulancias_disponibles, get_tipo_ambulancia_por_id
-from ..repositories.operador import sql_read_next_trip
+from ..repositories.mssql.ambulancias import get_maintenance, get_ambulancias_disponibles, get_tipo_ambulancia_por_id
+from ..repositories.mssql.operador import sql_read_next_trip
 
 ambulancias_bp = Blueprint("ambulancias", __name__, url_prefix="/api/ambulancias")
 

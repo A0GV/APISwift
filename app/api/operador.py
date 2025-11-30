@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request, make_response
-from ..repositories.operador import get_user_data, post_user_config
+from ..repositories.mssql.operador import get_user_data, post_user_config
 from ..repositories.s3.recursosS3 import getPresignedUrl, postFile
 
 operador_bp = Blueprint("operadores", __name__, url_prefix = "/api/operadores")

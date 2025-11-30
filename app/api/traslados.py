@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request, make_response
 from pydantic import ValidationError
-from ..repositories.traslados import get_traslados, get_tras_dias, get_tras_dias_2, sql_read_trip_details, get_estatus_tras, get_completados, sql_read_today_coordi
+from ..repositories.mssql.traslados import get_traslados, get_tras_dias, get_tras_dias_2, sql_read_trip_details, get_estatus_tras, get_completados, sql_read_today_coordi
 
 traslados_bp = Blueprint("traslados", __name__, url_prefix="/api/traslados")
 

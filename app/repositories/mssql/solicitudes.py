@@ -1,5 +1,5 @@
-from ..extensions import db
-from ..repositories.mysqlfunc import sql_insert_row_into
+from ...extensions import db
+from .mysqlfunc import sql_insert_row_into
 import pymssql
 
 def get_proximo_numero_solicitud():

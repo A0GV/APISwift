@@ -1,7 +1,5 @@
 from flask import Blueprint, jsonify, request, make_response
-from ..repositories.quejas import getQuejas, updateQuejaEstado
-from ..extensions import db
-import pymssql
+from ..repositories.mssql.quejas import getQuejas, updateQuejaEstado
 
 quejas_bp = Blueprint("quejas", __name__, url_prefix="/api/quejas")
 

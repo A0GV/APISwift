@@ -1,4 +1,4 @@
-from ..extensions import db
+from ...extensions import db
 from datetime import datetime
 
 def obtener_notificaciones_operador(id_usuario_operador, limit):

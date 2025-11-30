@@ -1,5 +1,5 @@
 from flask import Blueprint, make_response, request, jsonify
-from ..repositories.solicitudes import get_proximo_numero_solicitud, crear_solicitud_completa
+from ..repositories.mssql.solicitudes import get_proximo_numero_solicitud, crear_solicitud_completa
 
 solicitud_bp = Blueprint("solicitudes", __name__, url_prefix="/api/solicitud")
 
