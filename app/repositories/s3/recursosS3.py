@@ -19,3 +19,13 @@ def postFile(file, key:str):
         return True
     except NoCredentialsError:
         return False
+    
+def deleteFile(key:str):
+    try:
+        s3.s3_client.delete_object(
+            Bucket=s3.bucketName,
+            Key=key
+        )
+        return True
+    except NoCredentialsError:
+        return False

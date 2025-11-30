@@ -8,6 +8,7 @@ from app.api.ambulancias import ambulancias_bp
 from app.api.notificaciones import notificaciones_bp
 from app.api.quejas import quejas_bp
 from app.api.operador import operador_bp
+from app.api.solicitudes import solicitud_bp
 
 from app.extensions import db, s3
 
@@ -53,6 +54,7 @@ def create_app():
     app.register_blueprint(notificaciones_bp)
     app.register_blueprint(operador_bp)
     app.register_blueprint(quejas_bp)
+    app.register_blueprint(solicitud_bp)
     app.register_blueprint(main_bp)
 
     return app

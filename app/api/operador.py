@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request, make_response
 from ..repositories.mssql.operador import get_user_data, post_user_config
-from ..repositories.s3.recursosS3 import getPresignedUrl, postFile
+from ..repositories.s3.recursosS3 import getPresignedUrl, postFile, deleteFile
 
 operador_bp = Blueprint("operadores", __name__, url_prefix = "/api/operadores")
 
@@ -31,6 +31,7 @@ def update_datos_operador(idOperador):
 
         if foto: 
             print(foto.filename)
+            deleteFile()
             url = postFile(foto, 'fotos-perfil/' + foto.filename)
             print(url)
             post_user_config(idOperador, apodo, url)
