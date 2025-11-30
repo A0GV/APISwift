@@ -83,7 +83,7 @@ def get_tras_dias_2(date, idOperador):
     
     try:
         try:
-            cursor = db.get_mssql_connection()
+            cnx = db.get_mssql_connection()
             cursor = cnx.cursor(as_dict=True)
             cursor.execute(query, (date, idOperador))
 
