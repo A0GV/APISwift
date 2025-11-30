@@ -1,4 +1,9 @@
 from ...extensions import db
+from app.repositories.s3.recursosS3 import getPresignedUrl
+import pymssql
+
+from ...extensions import db
+from app.repositories.s3.recursosS3 import getPresignedUrl
 import pymssql
 
 def getQuejas():
@@ -10,6 +15,7 @@ def getQuejas():
         q.dtFechaQueja,
         q.dtFechaResolucion,
         q.Estado,
+        q.vcFoto,
 
         -- Datos del Operador
         u.IdUsuario,
@@ -46,8 +52,13 @@ def getQuejas():
         results = cursor.fetchall()
         cursor.close()
         
-        return [
-            {
+        quejas = []
+        for row in results:
+            print(f"\n=== Procesando queja {row['IdQueja']} ===")
+            print(f"vcFoto value: {repr(row['vcFoto'])}")
+            print(f"vcFoto type: {type(row['vcFoto'])}")
+            
+            queja = {
                 "IdQueja": row['IdQueja'],
                 "Titulo": row['vcTitulo'],
                 "Detalles": row['vcDetalles'],
@@ -63,13 +74,38 @@ def getQuejas():
                 "Prioridad": row['vcPrioridad'],
 
                 # Ambulancia
-                "IdAmbulancia": row['IdAmbulancia']
+                "IdAmbulancia": row['IdAmbulancia'],
+                
+                # Foto
+                "FotoKey": row['vcFoto']
             }
-            for row in results
-        ]
+            
+            # Solo generar URL si vcFoto tiene un valor válido
+            foto_value = row.get('vcFoto')
+            print(f"Evaluando foto: {repr(foto_value)}")
+            
+            if foto_value is not None and str(foto_value).strip():
+                print(f"Intentando generar URL para: {foto_value}")
+                try:
+                    queja["FotoUrl"] = getPresignedUrl(str(foto_value))
+                    print(f"URL generada: {queja['FotoUrl']}")
+                except Exception as e:
+                    print(f"Error generando URL para foto {foto_value}: {e}")
+                    import traceback
+                    traceback.print_exc()
+                    queja["FotoUrl"] = None
+            else:
+                print("No se generará URL - foto vacía o None")
+                queja["FotoUrl"] = None
+            
+            quejas.append(queja)
+        
+        return quejas
+        
     except Exception as e:
         raise TypeError(f"getQuejas: {e}")
-
+    
+        
 def updateQuejaEstado(id_queja):
     query = """
     UPDATE nova.dbo.Queja
