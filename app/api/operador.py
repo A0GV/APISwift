@@ -30,15 +30,16 @@ def update_datos_operador(idOperador):
         foto = request.files.get('foto')
 
         if foto:
-            fotoPasada = get_user_data(idOperador).get('fotoUrlBase')
-            print(fotoPasada)
-            deleteFile('fotos-perfil/' + fotoPasada)
-            url = postFile(foto, 'fotos-perfil/' + foto.filename)
+            urlFotoPasada = get_user_data(idOperador).get('fotoUrlBase')
+            print(urlFotoPasada)
+            deleteFile(urlFotoPasada)
+            url = 'fotos-perfil/' + foto.filename
+            postFile(foto, url)
             post_user_config(idOperador, apodo, url)
         else: 
             post_user_config(idOperador, apodo, None)
             url = get_user_data(idOperador).get('fotoUrlBase')
-            
+
         return make_response(jsonify({
             'mensaje':'Se actualizó el perfil',
             'usuario':{
