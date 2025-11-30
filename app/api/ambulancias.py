@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request, make_response
-from ..repositories.ambulancias import get_maintenance, get_ambulancias_disponibles, get_tipo_ambulancia_por_id
-from ..repositories.operador import sql_read_next_trip
+from ..repositories.mssql.ambulancias import get_maintenance, sql_get_ambulancias_disponibles, get_tipo_ambulancia_por_id
+from ..repositories.mssql.operador import sql_read_next_trip
 
 ambulancias_bp = Blueprint("ambulancias", __name__, url_prefix="/api/ambulancias")
 
@@ -34,17 +34,19 @@ def get_ambulancias_disponibles():
     try:
         fecha_inicio = request.args.get('fechaInicio', None)
         fecha_fin = request.args.get('fechaFin', None)
+        excluir_viaje = request.args.get('excluirViaje', None)
         
         if not fecha_inicio or not fecha_fin:
             return make_response(jsonify({'error': 'Se requieren fechaInicio y fechaFin'}), 400)
         
-        # Llamar a la función de mysqlfunc para obtener ambulancias disponibles
-        ambulancias = get_ambulancias_disponibles(fecha_inicio, fecha_fin)
+        # Convertir a int si existe
+        excluir_viaje_int = int(excluir_viaje) if excluir_viaje else None
+        
+        ambulancias = sql_get_ambulancias_disponibles(fecha_inicio, fecha_fin, excluir_viaje_int)
         return make_response(jsonify(ambulancias))
     except Exception as e:
         return make_response(jsonify({'error': str(e)}), 500)
-
-
+    
 # GET tipo de ambulancia por ID de ambulancia
 @ambulancias_bp.route("/<int:idAmbulancia>/tipo", methods=['GET'])
 def get_tipo_ambulancia(idAmbulancia):

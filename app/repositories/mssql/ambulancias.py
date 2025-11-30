@@ -1,4 +1,4 @@
-from ..extensions import db
+from ...extensions import db
 import pymssql
 
 def get_maintenance():
@@ -60,14 +60,27 @@ def get_maintenance():
     except Exception as e:
         raise TypeError(f"get_maintenance: {e}")
 
-def get_ambulancias_disponibles(fecha_inicio, fecha_fin):
+
+def sql_get_ambulancias_disponibles(fecha_inicio, fecha_fin, excluir_viaje=None):
+    # Query con JOIN para incluir tipo de ambulancia
     query = """
-        SELECT * FROM Ambulancia 
-        WHERE IdAmbulancia NOT IN (
-            SELECT IdAmbulancia FROM Viaje 
-            WHERE (dtFechaInicio < '%s' AND dtFechaFin > '%s')
-        )
+        SELECT 
+            a.IdAmbulancia,
+            a.IdTipoAmb,
+            a.dProxMantenimiento,
+            ta.tipo as vcTipoAmbulancia
+        FROM Ambulancia a
+        INNER JOIN tipoAmbulancia ta ON a.IdTipoAmb = ta.IdTipoAmb
+        WHERE a.IdAmbulancia NOT IN (
+            SELECT v.IdAmbulancia FROM Viaje v
+            WHERE v.dtFechaInicio < '%s' AND v.dtFechaFin > '%s'
     """ % (fecha_fin, fecha_inicio)
+    
+    # Excluir el viaje actual si se especifica
+    if excluir_viaje:
+        query += " AND v.IdViaje != %d" % excluir_viaje
+    
+    query += ")"
     
     try:
         try:

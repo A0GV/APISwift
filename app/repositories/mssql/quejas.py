@@ -1,4 +1,4 @@
-from ..extensions import db
+from ...extensions import db
 import pymssql
 
 def getQuejas():
@@ -69,4 +69,49 @@ def getQuejas():
         ]
     except Exception as e:
         raise TypeError(f"getQuejas: {e}")
+
+def updateQuejaEstado(id_queja):
+    query = """
+    UPDATE nova.dbo.Queja
+    SET Estado = 1
+    WHERE IdQueja = %s
+    """
+
+    try:
+        cnx = db.get_mssql_connection()
+        cursor = cnx.cursor()
+        cursor.execute(query, (id_queja,))
+        cnx.commit()
+    except pymssql._pymssql.InterfaceError:
+        print("Reconnecting...")
+        cnx = db.reconnect()
+        cursor = cnx.cursor()
+        cursor.execute(query, (id_queja,))
+        cnx.commit()
+    finally:
+        cursor.close()
+        cnx.close()
+
+
+
+def get_proximo_numero_queja():
+    query = "SELECT MAX(IdQueja) as ultimoId FROM Queja"
+    
+    try:
+        try:
+            cnx = db.get_mssql_connection()
+            cursor = cnx.cursor(as_dict=True)
+            cursor.execute(query)
+        except pymssql._pymssql.InterfaceError:
+            print("reconnecting...")
+            cnx = db.reconnect()
+            cursor = cnx.cursor(as_dict=True)
+            cursor.execute(query)
+        result = cursor.fetchone()
+        cursor.close()
+        
+        ultimo_id = result['ultimoId'] if result['ultimoId'] is not None else 0
+        return ultimo_id + 1
+    except Exception as e:
+        raise TypeError("get_proximo_numero_queja: %s" % e)
 

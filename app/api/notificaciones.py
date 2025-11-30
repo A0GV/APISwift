@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request, make_response
-from ..repositories.notificaciones import obtener_notificaciones_operador, obtener_notificaciones_coordi
+from ..repositories.mssql.notificaciones import obtener_notificaciones_operador, obtener_notificaciones_coordi
 
 notificaciones_bp = Blueprint("notificaciones", __name__, url_prefix="/api/notificaciones")
 

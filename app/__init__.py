@@ -8,6 +8,8 @@ from app.api.ambulancias import ambulancias_bp
 from app.api.notificaciones import notificaciones_bp
 from app.api.quejas import quejas_bp
 from app.api.operador import operador_bp
+from app.api.solicitudes import solicitud_bp
+from app.api.viajes import viajes_bp
 
 from app.extensions import db, s3
 
@@ -26,7 +28,8 @@ mssql_params = {
 s3_params = {
     'AWS_ACCESS_KEY_ID': os.getenv('AWS_ACCESS_KEY_ID'),
     'AWS_SECRET_ACCESS_KEY': os.getenv('AWS_SECRET_ACCESS_KEY'),
-    'AWS_REGION': os.getenv('AWS_REGION')
+    'AWS_REGION': os.getenv('AWS_REGION'),
+    'BUCKET': os.getenv('BUCKET')
 }
 
 # Connect to mssql dB from start
@@ -42,7 +45,7 @@ def create_app():
     try:
         s3.init_app(s3_params)
     except Exception as e:
-        print("Cannot connect to S3 server!: {}".format(e))
+        print("Cannot initialize S3 server configuration!: {}".format(e))
         sys.exit()
 
     
@@ -52,6 +55,8 @@ def create_app():
     app.register_blueprint(notificaciones_bp)
     app.register_blueprint(operador_bp)
     app.register_blueprint(quejas_bp)
+    app.register_blueprint(solicitud_bp)
+    app.register_blueprint(viajes_bp)
     app.register_blueprint(main_bp)
 
     return app
