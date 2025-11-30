@@ -76,7 +76,6 @@ def get_tras_dias_2(date, idOperador):
         WHERE CAST(v.dtFechaInicio AS DATE) = %s
             AND t.IdUsuarioOperador = %s
             AND e.vcEstatus IN ('Solicitado','En proceso')
-            AND v.fKmInicio IS NULL  
         ORDER BY v.dtFechaInicio ASC;
     """ 
     try:
