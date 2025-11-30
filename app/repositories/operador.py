@@ -68,5 +68,29 @@ def get_user_data(idOperador):
         return result
     except Exception as e:
         raise TypeError("get_user_data: %s" % e)
-        
-    
+     
+def post_user_config(idOperador, apodo, foto):
+    query = """
+    UPDATE Usuarios
+    SET vcApodo = %s""" + (", vcFotoPerfil = %s" if foto is not None else "") + " WHERE IdUsuario = %s"
+
+    try:
+        try:
+            cnx = db.get_mssql_connection()
+            cursor = cnx.cursor(as_dict=True)
+            if foto is not None:
+                cursor.execute(query, (apodo, foto, idOperador))
+            else:
+                cursor.execute(query, (apodo, idOperador))
+        except pymssql._pymssql.InterfaceError:
+            cnx = db.reconnect()
+            cursor = cnx.cursor(as_dict=True)
+            if foto is not None:
+                cursor.execute(query, (apodo, foto, idOperador))
+            else:
+                cursor.execute(query, (apodo, idOperador))
+                
+        cnx.commit()
+        cursor.close()
+    except Exception as e:
+        raise TypeError(f"sql_post_user_config: {e}")
