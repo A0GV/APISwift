@@ -1,7 +1,8 @@
 from flask import Blueprint, jsonify, request, make_response
-from ..repositories.notificaciones import obtener_notificaciones_operador, obtener_notificaciones_coordi
+from ..repositories.mssql.notificaciones import obtener_notificaciones_operador, obtener_notificaciones_coordi
 from flask_jwt_extended import jwt_required
-from ..models.roles import role_requir
+from ..models.roles import role_required
+
 notificaciones_bp = Blueprint("notificaciones", __name__, url_prefix="/api/notificaciones")
 
 # GET notificaciones del operador

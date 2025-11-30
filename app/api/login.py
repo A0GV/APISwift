@@ -1,7 +1,6 @@
 from flask import Blueprint, jsonify, request, make_response
-from ..repositories.mssql.mysqlfunc import sql_read_where
+from ..repositories.mssql.mysqlfunc import sql_read_where, sql_read_where
 from flask_jwt_extended import create_access_token
-from ..repositories.mysqlfunc import sql_read_where
 
 login_bp = Blueprint("login", __name__, url_prefix="/api/login")
 
