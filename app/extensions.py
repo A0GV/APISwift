@@ -50,15 +50,16 @@ db = MSSqlClient()
 
 class S3Client:
     def __init__(self):
-        self.s3 = None
+        self.s3_client = None
 
     def init_app(self, config):
-        self.s3 = boto3.client(
+        self.s3_client = boto3.client(
             's3',
             aws_access_key_id=config['AWS_ACCESS_KEY_ID'],
             aws_secret_access_key=config['AWS_SECRET_ACCESS_KEY'],
             region_name=config['AWS_REGION']
         )
-        return self.s3
+        self.bucketName = config['BUCKET']
+        return self.s3_client
     
 s3 = S3Client()

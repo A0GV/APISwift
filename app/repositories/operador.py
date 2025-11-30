@@ -46,15 +46,14 @@ def sql_read_next_trip(id_operador):
 def get_user_data(idOperador):
     query = """
             SELECT 
-                o.vcNombre,
-                o.vcApellidoPaterno,
-                o.vcApellidoMaterno,
-                o.vcApodo,
-                o.vcFotoPerfil
+                CONCAT(o.vcNombre, o.vcApellidoPaterno, o.vcApellidoMaterno) AS nombre,
+                o.vcApodo AS apodo,
+                o.vcFotoPerfil AS fotoUrlBase
             FROM Usuarios o
             WHERE o.IdUsuario = %s
             AND o.IdTipoPersonal = 1
     """
+    
     try:
         try:
             cnx = db.get_mssql_connection()
