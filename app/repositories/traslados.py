@@ -52,7 +52,7 @@ def get_tras_dias(date, idOperador):
 
 def get_tras_dias_2(date, idOperador):
     query = """
-        SELECT
+        SELECT TOP 1
             v.dtFechaInicio AS inicio,
             v.dtFechaFin AS fin,
             v.IdAmbulancia AS amb,
@@ -73,14 +73,12 @@ def get_tras_dias_2(date, idOperador):
         JOIN dbo.Ubicacion ud ON t.IdUbiDest = ud.IdUbicacion
         JOIN dbo.TipoTraslado tt ON t.IdTipoTraslado = tt.IdTipoTraslado
         JOIN dbo.Estatus e ON t.IdEstatus = e.IdEstatus
-        WHERE CAST(v.dtFechaInicio AS DATE) = %s 
+        WHERE CAST(v.dtFechaInicio AS DATE) = %s
             AND t.IdUsuarioOperador = %s
-            AND e.vcEstatus = 'Solicitado'
+            AND e.vcEstatus IN ('Solicitado','En proceso')
             AND v.fKmInicio IS NULL  
-        ORDER BY v.dtFechaInicio ASC;
-
-    """
-    
+        ORDER BY v.dtFechaInicio ASC;
+    """ 
     try:
         try:
             cursor = db.get_mssql_connection()
