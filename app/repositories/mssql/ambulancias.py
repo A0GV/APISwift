@@ -61,7 +61,7 @@ def get_maintenance():
         raise TypeError(f"get_maintenance: {e}")
 
 
-def get_ambulancias_disponibles(fecha_inicio, fecha_fin, excluir_viaje=None):
+def sql_get_ambulancias_disponibles(fecha_inicio, fecha_fin, excluir_viaje=None):
     # Query con JOIN para incluir tipo de ambulancia
     query = """
         SELECT 
