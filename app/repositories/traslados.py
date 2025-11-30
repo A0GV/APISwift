@@ -83,7 +83,7 @@ def get_tras_dias_2(date, idOperador):
     
     try:
         try:
-            cursor = db.get_mssql_connection()
+            cnx = db.get_mssql_connection()
             cursor = cnx.cursor(as_dict=True)
             cursor.execute(query, (date, idOperador))
 
@@ -305,7 +305,7 @@ def get_completados(params):
     SELECT COUNT(*) AS TotalTraslados
     FROM dbo.Viaje v
     JOIN dbo.Traslado t ON t.IdTraslado = v.IdTraslado
-    WHERE 1 = 1
+    WHERE t.IdEstatus = 2
     """
     conditions = []
     values = []
