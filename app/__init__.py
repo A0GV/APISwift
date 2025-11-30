@@ -42,7 +42,7 @@ def create_app():
     try:
         s3.init_app(s3_params)
     except Exception as e:
-        print("Cannot connect to S3 server!: {}".format(e))
+        print("Cannot initialize S3 server configuration!: {}".format(e))
         sys.exit()
 
     
