@@ -92,3 +92,26 @@ def updateQuejaEstado(id_queja):
         cursor.close()
         cnx.close()
 
+
+
+def get_proximo_numero_queja():
+    query = "SELECT MAX(IdQueja) as ultimoId FROM Queja"
+    
+    try:
+        try:
+            cnx = db.get_mssql_connection()
+            cursor = cnx.cursor(as_dict=True)
+            cursor.execute(query)
+        except pymssql._pymssql.InterfaceError:
+            print("reconnecting...")
+            cnx = db.reconnect()
+            cursor = cnx.cursor(as_dict=True)
+            cursor.execute(query)
+        result = cursor.fetchone()
+        cursor.close()
+        
+        ultimo_id = result['ultimoId'] if result['ultimoId'] is not None else 0
+        return ultimo_id + 1
+    except Exception as e:
+        raise TypeError("get_proximo_numero_queja: %s" % e)
+
