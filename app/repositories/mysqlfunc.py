@@ -1,4 +1,4 @@
-from ..extensions import MSSqlClient as db
+from ..extensions import db
 import pymssql
 
 def read_user_data(table_name, username):
