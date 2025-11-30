@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request, make_response
-from ..repositories.mssql.ambulancias import get_maintenance, get_ambulancias_disponibles, get_tipo_ambulancia_por_id
+from ..repositories.mssql.ambulancias import get_maintenance, sql_get_ambulancias_disponibles, get_tipo_ambulancia_por_id
 from ..repositories.mssql.operador import sql_read_next_trip
 
 ambulancias_bp = Blueprint("ambulancias", __name__, url_prefix="/api/ambulancias")
@@ -42,7 +42,7 @@ def get_ambulancias_disponibles():
         # Convertir a int si existe
         excluir_viaje_int = int(excluir_viaje) if excluir_viaje else None
         
-        ambulancias = get_ambulancias_disponibles(fecha_inicio, fecha_fin, excluir_viaje_int)
+        ambulancias = sql_get_ambulancias_disponibles(fecha_inicio, fecha_fin, excluir_viaje_int)
         return make_response(jsonify(ambulancias))
     except Exception as e:
         return make_response(jsonify({'error': str(e)}), 500)
