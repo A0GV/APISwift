@@ -3,6 +3,7 @@ from ..repositories.mssql.estadisticas import get_demand_hours, get_operators_wi
 from ..repositories.mssql.ambulancias import sql_read_last_amt_km
 from ..repositories.mssql.traslados import sql_update_start_trip, sql_update_end_trip
 from ..repositories.mssql.mysqlfunc import sql_read_all, sql_read_where, sql_update_where
+from ..repositories.mssql.solicitudes import get_catalogos
 
 main_bp = Blueprint("main", __name__)
 
@@ -114,56 +115,56 @@ def finalizar_viaje():
     
 # ENDPOINTS PARA SOLICITAR VIAJE
 
-# GET todas las ubicaciones
-@main_bp.route("/api/ubicaciones", methods=['GET'])
-def get_ubicaciones():
-    try:
-        ubicaciones = sql_read_all('Ubicacion')
-        return make_response(jsonify(ubicaciones))
-    except Exception as e:
-        return make_response(jsonify({'error': str(e)}), 500)
+# # GET todas las ubicaciones
+# @main_bp.route("/api/ubicaciones", methods=['GET'])
+# def get_ubicaciones():
+#     try:
+#         ubicaciones = sql_read_all('Ubicacion')
+#         return make_response(jsonify(ubicaciones))
+#     except Exception as e:
+#         return make_response(jsonify({'error': str(e)}), 500)
 
 
 # GET todos los operadores (solo IdTipoPersonal = 1)
-@main_bp.route("/api/operadores", methods=['GET'])
-def get_operadores():
-    try:
-        operadores = sql_read_where('Usuarios', {'IdTipoPersonal': 1})
-        return make_response(jsonify(operadores))
-    except Exception as e:
-        return make_response(jsonify({'error': str(e)}), 500)
+# @main_bp.route("/api/operadores", methods=['GET'])
+# def get_operadores():
+#     try:
+#         operadores = sql_read_where('Usuarios', {'IdTipoPersonal': 1})
+#         return make_response(jsonify(operadores))
+#     except Exception as e:
+#         return make_response(jsonify({'error': str(e)}), 500)
 
 
 # GET tipos de traslado
-@main_bp.route("/api/tipostraslado", methods=['GET'])
-def get_tipos_traslado():
-    try:
-        tipos = sql_read_all('TipoTraslado')
-        return make_response(jsonify(tipos))
-    except Exception as e:
-        return make_response(jsonify({'error': str(e)}), 500)
+# @main_bp.route("/api/tipostraslado", methods=['GET'])
+# def get_tipos_traslado():
+#     try:
+#         tipos = sql_read_all('TipoTraslado')
+#         return make_response(jsonify(tipos))
+#     except Exception as e:
+#         return make_response(jsonify({'error': str(e)}), 500)
 
 # GET estatus
-@main_bp.route("/api/estatus", methods=['GET'])
-def get_estatus():
-    try:
-        estatus = sql_read_all('Estatus')
-        return make_response(jsonify(estatus))
-    except Exception as e:
-        return make_response(jsonify({'error': str(e)}), 500)
+# @main_bp.route("/api/estatus", methods=['GET'])
+# def get_estatus():
+#     try:
+#         estatus = sql_read_all('Estatus')
+#         return make_response(jsonify(estatus))
+#     except Exception as e:
+#         return make_response(jsonify({'error': str(e)}), 500)
 
 
 # GET socio por número
-@main_bp.route("/api/socios/<int:numeroSocio>", methods=['GET'])
-def get_socio(numeroSocio):
-    try:
-        socio = sql_read_where('Socios', {'IdNumeroSocio': numeroSocio})
-        if socio:
-            return make_response(jsonify(socio[0]))
-        else:
-            return make_response(jsonify({'error': 'Socio no encontrado'}), 404)
-    except Exception as e:
-        return make_response(jsonify({'error': str(e)}), 500)
+# @main_bp.route("/api/socios/<int:numeroSocio>", methods=['GET'])
+# def get_socio(numeroSocio):
+#     try:
+#         socio = sql_read_where('Socios', {'IdNumeroSocio': numeroSocio})
+#         if socio:
+#             return make_response(jsonify(socio[0]))
+#         else:
+#             return make_response(jsonify({'error': 'Socio no encontrado'}), 404)
+#     except Exception as e:
+#         return make_response(jsonify({'error': str(e)}), 500)
 
 
 #Enpoint para actualizar el km

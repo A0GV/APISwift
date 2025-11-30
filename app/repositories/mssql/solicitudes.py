@@ -75,3 +75,46 @@ def crear_solicitud_completa(data):
         
     except Exception as e:
         raise TypeError("crear_solicitud_completa: %s" % e)
+    
+
+
+def get_catalogos():
+    """Obtiene todos los catálogos en una sola consulta"""
+    try:
+        try:
+            cnx = db.get_mssql_connection()
+            cursor = cnx.cursor(as_dict=True)
+        except pymssql._pymssql.InterfaceError:
+            print("reconnecting...")
+            cnx = db.reconnect()
+            cursor = cnx.cursor(as_dict=True)
+        
+        # Ubicaciones
+        cursor.execute('SELECT * FROM Ubicacion')
+        ubicaciones = cursor.fetchall()
+        
+        # Operadores (IdTipoPersonal = 1)
+        cursor.execute("SELECT * FROM Usuarios WHERE IdTipoPersonal = 1")
+        operadores = cursor.fetchall()
+        
+        # Tipos de traslado
+        cursor.execute('SELECT * FROM TipoTraslado')
+        tipos_traslado = cursor.fetchall()
+        
+        # Próximo número de solicitud
+        cursor.execute('SELECT MAX(IdTraslado) as ultimoId FROM Traslado')
+        result = cursor.fetchone()
+        ultimo_id = result['ultimoId'] if result['ultimoId'] is not None else 0
+        proximo_numero = ultimo_id + 1
+        
+        cursor.close()
+        
+        return {
+            'ubicaciones': ubicaciones,
+            'operadores': operadores,
+            'tiposTraslado': tipos_traslado,
+            'proximoNumero': proximo_numero
+        }
+        
+    except Exception as e:
+        raise TypeError("get_catalogos: %s" % e)
