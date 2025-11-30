@@ -29,14 +29,23 @@ def update_datos_operador(idOperador):
         apodo = request.form.get('apodo')
         foto = request.files.get('foto')
 
-        if foto: 
-            print(foto.filename)
-            deleteFile()
+        if foto:
+            fotoPasada = get_user_data(idOperador).get('fotoUrlBase')
+            print(fotoPasada)
+            deleteFile('fotos-perfil/' + fotoPasada)
             url = postFile(foto, 'fotos-perfil/' + foto.filename)
-            print(url)
             post_user_config(idOperador, apodo, url)
         else: 
             post_user_config(idOperador, apodo, None)
-        return make_response(jsonify({'mensaje':'Se actualizó el perfil'}))
+            url = get_user_data(idOperador).get('fotoUrlBase')
+            
+        return make_response(jsonify({
+            'mensaje':'Se actualizó el perfil',
+            'usuario':{
+                'idOperador': idOperador,
+                'apodo': apodo,
+                'fotoUrl': getPresignedUrl(url) if foto else None
+            }
+            }),200)
     except Exception as e:
         return make_response(jsonify({'error': str(e)}), 500)
