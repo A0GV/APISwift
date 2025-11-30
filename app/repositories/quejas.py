@@ -70,3 +70,25 @@ def getQuejas():
     except Exception as e:
         raise TypeError(f"getQuejas: {e}")
 
+def updateQuejaEstado(id_queja):
+    query = """
+    UPDATE nova.dbo.Queja
+    SET Estado = 1
+    WHERE IdQueja = %s
+    """
+
+    try:
+        cnx = db.get_mssql_connection()
+        cursor = cnx.cursor()
+        cursor.execute(query, (id_queja,))
+        cnx.commit()
+    except pymssql._pymssql.InterfaceError:
+        print("Reconnecting...")
+        cnx = db.reconnect()
+        cursor = cnx.cursor()
+        cursor.execute(query, (id_queja,))
+        cnx.commit()
+    finally:
+        cursor.close()
+        cnx.close()
+
