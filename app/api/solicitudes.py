@@ -1,6 +1,8 @@
 from flask import Blueprint, make_response, request, jsonify
 from ..repositories.mssql.solicitudes import get_proximo_numero_solicitud, crear_solicitud_completa, get_catalogos
 from ..repositories.mssql.mysqlfunc import sql_read_where
+from flask_jwt_extended import jwt_required
+from ..models.roles import role_requir
 
 solicitud_bp = Blueprint("solicitudes", __name__, url_prefix="/api/solicitud")
 

@@ -4,6 +4,8 @@ from ..repositories.mssql.ambulancias import sql_read_last_amt_km
 from ..repositories.mssql.traslados import sql_update_start_trip, sql_update_end_trip
 from ..repositories.mssql.mysqlfunc import sql_read_all, sql_read_where, sql_update_where
 from ..repositories.mssql.solicitudes import get_catalogos
+from flask_jwt_extended import jwt_required
+from ..models.roles import role_required
 
 main_bp = Blueprint("main", __name__)
 
@@ -52,6 +54,8 @@ def weekly_transfer_status():
 # GET endpoint to just get the number of last km trip
 # Call /viaje/kmAmbPrev?IdAmbulancia=1 change the 1 tho
 @main_bp.route("/viaje/kmAmbPrev", methods=['GET'])
+@jwt_required()
+@role_required("operador")
 def kmAmbPrev():
     IdAmbulancia = request.args.get('IdAmbulancia', type=int)
     if IdAmbulancia is None:
