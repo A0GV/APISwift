@@ -115,3 +115,35 @@ def get_proximo_numero_queja():
     except Exception as e:
         raise TypeError("get_proximo_numero_queja: %s" % e)
 
+def crear_queja(data):
+    query = """
+        INSERT INTO Queja (IdUsuarioOperador, vcTitulo, vcDetalles, IdPrioridad, vcFoto, Estado, dtFechaQueja, IdAmbulancia)
+        VALUES (%d, '%s', '%s', %d, %s, 0, GETDATE(), %d);
+        SELECT SCOPE_IDENTITY() as IdQueja;
+    """ % (
+        data['IdUsuarioOperador'],
+        data['vcTitulo'].replace("'", "''"),
+        data['vcDetalles'].replace("'", "''"),
+        data['IdPrioridad'],
+        "'%s'" % data['vcFoto'] if data.get('vcFoto') else 'NULL',
+        data['IdAmbulancia']
+    )
+    
+    try:
+        try:
+            cnx = db.get_mssql_connection()
+            cursor = cnx.cursor(as_dict=True)
+            cursor.execute(query)
+        except pymssql._pymssql.InterfaceError:
+            print("reconnecting...")
+            cnx = db.reconnect()
+            cursor = cnx.cursor(as_dict=True)
+            cursor.execute(query)
+        
+        result = cursor.fetchone()
+        cnx.commit()
+        cursor.close()
+        
+        return result['IdQueja'] if result else None
+    except Exception as e:
+        raise TypeError("crear_queja: %s" % e)

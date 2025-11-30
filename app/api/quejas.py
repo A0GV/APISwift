@@ -1,7 +1,8 @@
 from flask import Blueprint, jsonify, request, make_response
 
 from app.repositories.mssql.mysqlfunc import sql_read_all
-from ..repositories.mssql.quejas import get_proximo_numero_queja, getQuejas, updateQuejaEstado
+from ..repositories.mssql.quejas import get_proximo_numero_queja, getQuejas, updateQuejaEstado, crear_queja
+from ..repositories.s3.recursosS3 import postFile
 from ..extensions import db
 from flask_jwt_extended import jwt_required
 from ..models.roles import role_requir
@@ -47,5 +48,51 @@ def get_catalogos_queja():
             'ambulancias': ambulancias,
             'proximoNumero': proximo_numero
         }))
+    except Exception as e:
+        return make_response(jsonify({'error': str(e)}), 500)
+
+# POST crear queja
+@quejas_bp.route("", methods=['POST'])
+def post_crear_queja():
+    try:
+        # Obtener datos del form
+        id_operador = request.form.get('IdUsuarioOperador', type=int)
+        titulo = request.form.get('vcTitulo')
+        detalles = request.form.get('vcDetalles')
+        id_prioridad = request.form.get('IdPrioridad', type=int)
+        id_ambulancia = request.form.get('IdAmbulancia', type=int)
+        foto = request.files.get('foto')
+        
+        # Validar campos requeridos
+        if not all([id_operador, titulo, detalles, id_prioridad, id_ambulancia]):
+            return make_response(jsonify({'error': 'Faltan campos requeridos'}), 400)
+        
+        # Subir foto a S3 si existe
+        foto_url = None
+        if foto:
+            key = 'quejas/' + foto.filename
+            if postFile(foto, key):
+                foto_url = key
+        
+        # Crear queja en base de datos
+        data = {
+            'IdUsuarioOperador': id_operador,
+            'vcTitulo': titulo,
+            'vcDetalles': detalles,
+            'IdPrioridad': id_prioridad,
+            'IdAmbulancia': id_ambulancia,
+            'vcFoto': foto_url
+        }
+        
+        id_queja = crear_queja(data)
+        
+        if id_queja:
+            return make_response(jsonify({
+                'IdQueja': int(id_queja),
+                'message': 'Queja registrada exitosamente'
+            }), 201)
+        else:
+            return make_response(jsonify({'error': 'Error al crear la queja'}), 500)
+            
     except Exception as e:
         return make_response(jsonify({'error': str(e)}), 500)
