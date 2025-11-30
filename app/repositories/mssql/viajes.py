@@ -127,7 +127,7 @@ def actualizar_viaje_completo(id_viaje, data):
     except Exception as e:
         raise TypeError("actualizar_viaje_completo: %s" % e)
 
-def cancelar_viaje(id_viaje):
+def sql_cancelar_viaje(id_viaje):
     
     try:
         try:
