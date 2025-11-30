@@ -8,7 +8,7 @@ operador_bp = Blueprint("operadores", __name__, url_prefix = "/api/operadores")
 def get_datos_operador(idOperador):
     try:
         operador_data = get_user_data(idOperador)  
-        baseUrl = operador_data.get('fotoUrlBase')
+        baseUrl = operador_data.pop('fotoUrlBase', None)
         if baseUrl:
             operador_data['fotoUrl'] = getPresignedUrl(baseUrl)
         else:

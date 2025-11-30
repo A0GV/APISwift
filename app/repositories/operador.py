@@ -1,5 +1,4 @@
 from ..extensions import db
-
 import pymssql
 
 def sql_read_next_trip(id_operador):
@@ -46,7 +45,7 @@ def sql_read_next_trip(id_operador):
 def get_user_data(idOperador):
     query = """
             SELECT 
-                CONCAT(o.vcNombre, o.vcApellidoPaterno, o.vcApellidoMaterno) AS nombre,
+                CONCAT(o.vcNombre, ' ', o.vcApellidoPaterno, ' ', o.vcApellidoMaterno) AS nombre,
                 o.vcApodo AS apodo,
                 o.vcFotoPerfil AS fotoUrlBase
             FROM Usuarios o
