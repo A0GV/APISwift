@@ -152,3 +152,48 @@ def get_tipo_ambulancia_por_id(idAmbulancia):
         return result
     except Exception as e:
         raise TypeError("get_tipo_ambulancia_por_id: %s" % e)
+
+# Coordi mapa view 
+def sql_check_ambulancia_status(IdAmbulancia, FechaActual):
+    query = """
+        SELECT TOP 1
+            1 AS OnTrip,
+            v.IdViaje,
+            v.dtFechaInicio,
+            v.dtFechaFin,
+            v.IdAmbulancia,
+            uo.IdUbicacion AS OrigenId,
+            ud.IdUbicacion AS DestinoId,
+            uo.vcDomicilio AS OrigenDomicilio,
+            ud.vcDomicilio AS DestinoDomicilio,
+            uo.fLatitud AS OrigenLat,
+            uo.fLongitud AS OrigenLong,
+            ud.fLatitud AS DestinoLat,
+            ud.fLongitud AS DestinoLong,
+            t.IdTraslado,
+            t.IdEstatus
+        FROM dbo.Viaje v
+        JOIN dbo.Traslado t ON t.IdTraslado = v.IdTraslado
+        JOIN dbo.Ubicacion uo ON t.IdUbiOrigen = uo.IdUbicacion
+        JOIN dbo.Ubicacion ud ON t.IdUbiDest = ud.IdUbicacion
+        WHERE v.IdAmbulancia = %s
+          AND %s >= v.dtFechaInicio 
+          AND %s <= v.dtFechaFin
+          AND t.IdEstatus = 2;
+    """
+    
+    try:
+        try:
+            cnx = db.get_mssql_connection()
+            cursor = cnx.cursor(as_dict=True)
+            cursor.execute(query, (IdAmbulancia, FechaActual, FechaActual,)) # Adds ambulance id 
+        except pymssql._pymssql.InterfaceError:
+            print("reconnecting...")
+            cnx = db.reconnect()
+            cursor = cnx.cursor(as_dict=True)
+            cursor.execute(query, (IdAmbulancia, FechaActual, FechaActual,))
+        a = cursor.fetchall()
+        cursor.close()
+        return a
+    except Exception as e:
+        raise TypeError("sql_check_ambulancia_status:%s" % e)

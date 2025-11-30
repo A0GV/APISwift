@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request, make_response
-from ..repositories.mssql.ambulancias import get_maintenance, sql_get_ambulancias_disponibles, get_tipo_ambulancia_por_id
+from ..repositories.mssql.ambulancias import get_maintenance, sql_get_ambulancias_disponibles, get_tipo_ambulancia_por_id, sql_check_ambulancia_status
 from ..repositories.mssql.operador import sql_read_next_trip
 from flask_jwt_extended import jwt_required
 from ..models.roles import role_required
@@ -62,3 +62,48 @@ def get_tipo_ambulancia(idAmbulancia):
             return make_response(jsonify({'error': 'Ambulancia no encontrada'}), 404)
     except Exception as e:
         return make_response(jsonify({'error': str(e)}), 500)
+
+# GET de ubicaciones probables de ambulancias activas ahorita en base al tiempo y status
+@ambulancias_bp.route("/status", methods=['GET'])
+def ambulanciaStatus():
+    IdAmbulancia = request.args.get('IdAmbulancia', type=int)
+    FechaActual = request.args.get('FechaActual', type=str)
+    
+    if IdAmbulancia is None:
+        return make_response(jsonify({"error": "IdAmbulancia query parameter is required"}), 400)
+    if FechaActual is None:
+        return make_response(jsonify({"error": "FechaActual query parameter is required"}), 400)
+    
+    try:
+        rows = sql_check_ambulancia_status(IdAmbulancia, FechaActual)
+        
+        # Si no hay filas, ambulancia no está en viaje activo entcs va a decir q está en OnTrip 0 y usa coords de nova
+        if len(rows) == 0:
+            return make_response(jsonify({
+                "OnTrip": 0,
+                "IdAmbulancia": IdAmbulancia,
+                "DefaultLat": 25.7320824,  # Nova coords
+                "DefaultLong": -100.3027483
+            }))
+        else:
+            # Viaje activo 1 sí regresa viaje itself pero customized json en vez de straight up sql server
+            row = rows[0]
+            return make_response(jsonify({
+                "OnTrip": 1,
+                "IdAmbulancia": IdAmbulancia,
+                "IdViaje": row['IdViaje'],
+                "OrigenLat": float(row['OrigenLat']) if row['OrigenLat'] else None,
+                "OrigenLong": float(row['OrigenLong']) if row['OrigenLong'] else None,
+                "DestinoLat": float(row['DestinoLat']) if row['DestinoLat'] else None,
+                "DestinoLong": float(row['DestinoLong']) if row['DestinoLong'] else None,
+                "OrigenDomicilio": row['OrigenDomicilio'],
+                "DestinoDomicilio": row['DestinoDomicilio'],
+                "IdEstatus": row['IdEstatus'],
+                "IdTraslado": row['IdTraslado'],
+                "dtFechaInicio": row['dtFechaInicio'],
+                "dtFechaFin": row['dtFechaFin'],
+                "OrigenId": row['OrigenId'],
+                "DestinoId": row['DestinoId']
+            }))
+    except Exception as e:
+        return make_response(jsonify({"error": str(e)}), 500)

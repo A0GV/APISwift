@@ -54,8 +54,8 @@ def weekly_transfer_status():
 # GET endpoint to just get the number of last km trip
 # Call /viaje/kmAmbPrev?IdAmbulancia=1 change the 1 tho
 @main_bp.route("/viaje/kmAmbPrev", methods=['GET'])
-@jwt_required()
-@role_required("operador")
+# @jwt_required()
+# @role_required("operador")
 def kmAmbPrev():
     IdAmbulancia = request.args.get('IdAmbulancia', type=int)
     if IdAmbulancia is None:
