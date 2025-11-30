@@ -2,7 +2,8 @@ from flask import Blueprint, jsonify, request, make_response
 from pydantic import ValidationError
 from ..repositories.mssql.traslados import get_traslados, get_tras_dias, get_tras_dias_2, sql_read_trip_details, get_estatus_tras, get_completados, sql_read_today_coordi
 from flask_jwt_extended import jwt_required
-from ..models.roles import role_requir
+from ..models.roles import role_required
+
 traslados_bp = Blueprint("traslados", __name__, url_prefix="/api/traslados")
 
 # NO FUNCIONARÁ AHORITA PORQUE EN SWIFT, LA LLAMADA NO TIENE EL /API AL INICIO

@@ -1,10 +1,10 @@
 from flask import Blueprint, jsonify, request, make_response
 from ..repositories.mssql.operador import get_user_data, post_user_config
 from ..repositories.s3.recursosS3 import getPresignedUrl, postFile, deleteFile
-from ..repositories.operador import get_user_data
 from ..repositories.s3.recursosS3 import getPresignedUrl
 from flask_jwt_extended import jwt_required
-from ..models.roles import role_requir
+from ..models.roles import role_required
+
 operador_bp = Blueprint("operadores", __name__, url_prefix = "/api/operadores")
 
 @operador_bp.route("/<int:idOperador>/datos", methods=['GET'])
@@ -33,15 +33,16 @@ def update_datos_operador(idOperador):
         foto = request.files.get('foto')
 
         if foto:
-            fotoPasada = get_user_data(idOperador).get('fotoUrlBase')
-            print(fotoPasada)
-            deleteFile('fotos-perfil/' + fotoPasada)
-            url = postFile(foto, 'fotos-perfil/' + foto.filename)
+            urlFotoPasada = get_user_data(idOperador).get('fotoUrlBase')
+            print(urlFotoPasada)
+            deleteFile(urlFotoPasada)
+            url = 'fotos-perfil/' + foto.filename
+            postFile(foto, url)
             post_user_config(idOperador, apodo, url)
         else: 
             post_user_config(idOperador, apodo, None)
             url = get_user_data(idOperador).get('fotoUrlBase')
-            
+
         return make_response(jsonify({
             'mensaje':'Se actualizó el perfil',
             'usuario':{

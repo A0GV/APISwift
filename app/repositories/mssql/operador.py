@@ -64,6 +64,7 @@ def get_user_data(idOperador):
             cursor = cnx.cursor(as_dict=True)
             cursor.execute(query, (idOperador,))
         result = cursor.fetchone()
+        print(result)
         cursor.close()
         return result
     except Exception as e:
@@ -73,7 +74,8 @@ def post_user_config(idOperador, apodo, foto):
     query = """
     UPDATE Usuarios
     SET vcApodo = %s""" + (", vcFotoPerfil = %s" if foto is not None else "") + " WHERE IdUsuario = %s"
-
+    
+    print(idOperador, apodo, foto)
     try:
         try:
             cnx = db.get_mssql_connection()

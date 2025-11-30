@@ -5,7 +5,7 @@ from ..repositories.mssql.quejas import get_proximo_numero_queja, getQuejas, upd
 from ..repositories.s3.recursosS3 import postFile
 from ..extensions import db
 from flask_jwt_extended import jwt_required
-from ..models.roles import role_requir
+from ..models.roles import role_required
 import pymssql
 
 quejas_bp = Blueprint("quejas", __name__, url_prefix="/api/quejas")
