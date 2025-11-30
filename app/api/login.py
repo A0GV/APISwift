@@ -1,5 +1,7 @@
 from flask import Blueprint, jsonify, request, make_response
 from ..repositories.mssql.mysqlfunc import sql_read_where
+from flask_jwt_extended import create_access_token
+from ..repositories.mysqlfunc import sql_read_where
 
 login_bp = Blueprint("login", __name__, url_prefix="/api/login")
 
@@ -23,7 +25,10 @@ def login_operador_post():
         # Verificar la contraseña
         password_record = sql_read_where('Pass', {'IdPass': id_pass, 'vcCodigoUsuario': vc_codigo})
         if password_record:
-            return make_response(jsonify({'IdUsuario': int(id_usuario), 'message': 'Login exitoso'}), 200)
+            access_token = create_access_token(identity=str(id_usuario),  # Usar solo el idUsuario como identity
+                                               additional_claims={'rol': 'operador'}  # Agregar el rol como un claim personalizado
+                                               )            
+            return make_response(jsonify({'access_token': access_token}), 200)
         else:
             return make_response(jsonify({'error': 'Credenciales inválidas o permisos insuficientes'}), 401)
 
@@ -53,7 +58,10 @@ def login_coordinador():
         # Verificar la contraseña
         password_record = sql_read_where('Pass', {'IdPass': id_pass, 'vcCodigoUsuario': vc_codigo})
         if password_record:
-            return make_response(jsonify({'IdUsuario': int(id_usuario), 'message': 'Login exitoso'}), 200)
+            access_token = create_access_token(identity=str(id_usuario),  # Usar solo el idUsuario como identity
+                                               additional_claims={'rol': 'coordinador'}  # Agregar el rol como un claim personalizado
+                                               )
+            return make_response(jsonify({'access_token': access_token}), 200)
         else:
             return make_response(jsonify({'error': 'Credenciales inválidas o permisos insuficientes'}), 401)
             

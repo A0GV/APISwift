@@ -2,6 +2,10 @@ from flask import Blueprint, jsonify, request, make_response
 
 from app.repositories.mssql.mysqlfunc import sql_read_all
 from ..repositories.mssql.quejas import get_proximo_numero_queja, getQuejas, updateQuejaEstado
+from ..extensions import db
+from flask_jwt_extended import jwt_required
+from ..models.roles import role_requir
+import pymssql
 
 quejas_bp = Blueprint("quejas", __name__, url_prefix="/api/quejas")
 
