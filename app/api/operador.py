@@ -1,7 +1,6 @@
 from flask import Blueprint, jsonify, request, make_response
 from ..repositories.mssql.operador import get_user_data, post_user_config
 from ..repositories.s3.recursosS3 import getPresignedUrl, postFile, deleteFile
-from ..repositories.s3.recursosS3 import getPresignedUrl
 from flask_jwt_extended import jwt_required
 from ..models.roles import role_required
 
@@ -30,8 +29,6 @@ def update_datos_operador(idOperador):
         apodo = request.form.get('apodo')
         foto = request.files.get('foto')
         modificarFoto = request.form.get('modificarFoto', 'false').lower() == 'true'
-        if foto: 
-            print(foto.filename)
 
         url = ""
         deleteOutdatedUrl = False
@@ -45,6 +42,7 @@ def update_datos_operador(idOperador):
                 postFile(foto, url)
             else: 
                 url = None
+                deleteOutdatedUrl = True
         else: 
             url = get_user_data(idOperador).get('fotoUrlBase')
         

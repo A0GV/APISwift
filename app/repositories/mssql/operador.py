@@ -93,7 +93,6 @@ def post_user_config(idOperador, apodo, fotoUrl, deleteOutdatedUrl=False):
         WHERE IdUsuario = %s
         """
     
-    print(idOperador, apodo, fotoUrl)
     try:
         try:
             cnx = db.get_mssql_connection()
