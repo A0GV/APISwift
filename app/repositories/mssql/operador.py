@@ -70,15 +70,16 @@ def get_user_data(idOperador):
     except Exception as e:
         raise TypeError("get_user_data: %s" % e)
      
-def post_user_config(idOperador, apodo, foto, deletedFile=False):
-    if foto is not None:
+def post_user_config(idOperador, apodo, fotoUrl, deleteOutdatedUrl=False):
+    if fotoUrl is not None:
         query = """
         UPDATE Usuarios
         SET vcApodo = %s , 
             vcFotoPerfil = %s
         WHERE IdUsuario = %s
         """
-    elif deletedFile:
+    elif deleteOutdatedUrl:
+        # Aquí no debería existir una foto
         query = """
         UPDATE Usuarios
         SET vcApodo = %s , 
@@ -92,7 +93,7 @@ def post_user_config(idOperador, apodo, foto, deletedFile=False):
         WHERE IdUsuario = %s
         """
     
-    print(idOperador, apodo, foto)
+    print(idOperador, apodo, fotoUrl)
     try:
         try:
             cnx = db.get_mssql_connection()
@@ -102,8 +103,8 @@ def post_user_config(idOperador, apodo, foto, deletedFile=False):
             cnx = db.reconnect()
             cursor = cnx.cursor(as_dict=True)
 
-        if foto is not None:
-            cursor.execute(query, (apodo, foto, idOperador))
+        if fotoUrl is not None:
+            cursor.execute(query, (apodo, fotoUrl, idOperador))
         else:
             cursor.execute(query, (apodo, idOperador))
                 
