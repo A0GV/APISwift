@@ -12,6 +12,8 @@ quejas_bp = Blueprint("quejas", __name__, url_prefix="/api/quejas")
 
 # GET quejas activas
 @quejas_bp.route("/obtenerquejas", methods=["GET"])
+@jwt_required()
+@role_required("coordinador")
 def obtener_quejas():
 	try:
 		results = getQuejas()
@@ -21,6 +23,8 @@ def obtener_quejas():
 
 # PUT endpoint to update the status of a complaint
 @quejas_bp.route("/actualizarEstado", methods=["PUT"])
+@jwt_required()
+@role_required("coordinador")
 def actualizar_estado():
     try:
         data = request.get_json()

@@ -6,9 +6,10 @@ from ..models.roles import role_required
 
 operador_bp = Blueprint("operadores", __name__, url_prefix = "/api/operadores")
 
+
+@operador_bp.route("/<int:idOperador>/datos", methods=['GET'])
 @jwt_required()
 @role_required("operador")
-@operador_bp.route("/<int:idOperador>/datos", methods=['GET'])
 def get_datos_operador(idOperador):
     try:
         operador_data = get_user_data(idOperador)  
@@ -25,9 +26,10 @@ def get_datos_operador(idOperador):
     except Exception as e:
         return make_response(jsonify({'error': str(e)}), 500)
     
+
+@operador_bp.route("/<int:idOperador>", methods=['POST'])
 @jwt_required()
 @role_required("operador")
-@operador_bp.route("/<int:idOperador>", methods=['POST'])
 def update_datos_operador(idOperador):
     try:
         apodo = request.form.get('apodo')
