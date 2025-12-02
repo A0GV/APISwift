@@ -32,6 +32,9 @@ def update_datos_operador(idOperador):
         apodo = request.form.get('apodo')
         foto = request.files.get('foto')
         modificarFoto = request.form.get('modificarFoto', 'false').lower() == 'true'
+
+        url = ""
+        
         if modificarFoto:
             if foto:
                 urlFotoPasada = get_user_data(idOperador).get('fotoUrlBase')
@@ -48,7 +51,7 @@ def update_datos_operador(idOperador):
         else: 
             url = get_user_data(idOperador).get('fotoUrlBase')
         
-        post_user_config(idOperador, apodo, None if modificarFoto else url)
+        post_user_config(idOperador, apodo, url if modificarFoto else None)
 
 
         return make_response(jsonify({
