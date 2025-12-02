@@ -34,7 +34,7 @@ def update_datos_operador(idOperador):
         modificarFoto = request.form.get('modificarFoto', 'false').lower() == 'true'
 
         url = ""
-        
+
         if modificarFoto:
             if foto:
                 urlFotoPasada = get_user_data(idOperador).get('fotoUrlBase')
@@ -63,4 +63,5 @@ def update_datos_operador(idOperador):
             }
             }),200)
     except Exception as e:
+        print(str(e))
         return make_response(jsonify({'error': str(e)}), 500)
