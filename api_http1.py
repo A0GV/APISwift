@@ -5,6 +5,8 @@ import mysqlfunc as MSSql
 import viajeTrasladoSocioUbi as VTSU
 import getCielo as diatras
 from pydantic import ValidationError
+from flask_jwt_extended import jwt_required
+from ..models.roles import role_required
 
 
 # Connect to mssql dB from start

@@ -7,6 +7,8 @@ notificaciones_bp = Blueprint("notificaciones", __name__, url_prefix="/api/notif
 
 # GET notificaciones del operador
 @notificaciones_bp.route("/<int:idOperador>", methods=['GET'])
+@jwt_required()
+@role_required("operador")
 def obtener_notificaciones(idOperador):
     
     limite = request.args.get("limite", None)

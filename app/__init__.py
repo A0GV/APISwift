@@ -35,6 +35,7 @@ s3_params = {
 # Connect to mssql dB from start
 def create_app():
     app = Flask(__name__)
+    jwt = JWTManager(app)
 
     app.config['JWT_ALGORITHM'] = 'HS256'
     app.config['JWT_SECRET_KEY']= os.getenv('JWT_SECRET_KEY')
