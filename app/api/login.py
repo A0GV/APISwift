@@ -27,7 +27,7 @@ def login_operador_post():
             access_token = create_access_token(identity=str(id_usuario),  # Usar solo el idUsuario como identity
                                                additional_claims={'rol': 'operador'}  # Agregar el rol como un claim personalizado
                                                )            
-            return make_response(jsonify({'access_token': access_token}), 200)
+            return make_response(jsonify({'access_token': access_token, 'IdUsuario': id_usuario}), 200)
         else:
             return make_response(jsonify({'error': 'Credenciales inválidas o permisos insuficientes'}), 401)
 
@@ -60,7 +60,7 @@ def login_coordinador():
             access_token = create_access_token(identity=str(id_usuario),  # Usar solo el idUsuario como identity
                                                additional_claims={'rol': 'coordinador'}  # Agregar el rol como un claim personalizado
                                                )
-            return make_response(jsonify({'access_token': access_token}), 200)
+            return make_response(jsonify({'access_token': access_token, 'IdUsuario': id_usuario}), 200)
         else:
             return make_response(jsonify({'error': 'Credenciales inválidas o permisos insuficientes'}), 401)
             
