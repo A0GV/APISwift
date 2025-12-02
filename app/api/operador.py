@@ -27,31 +27,28 @@ def get_datos_operador(idOperador):
 @operador_bp.route("/<int:idOperador>", methods=['POST'])
 def update_datos_operador(idOperador):
     try:
-        # Aquí iría la lógica para actualizar los datos del operador
-        # Por ejemplo: update_user_data(idOperador, data)
         apodo = request.form.get('apodo')
         foto = request.files.get('foto')
         modificarFoto = request.form.get('modificarFoto', 'false').lower() == 'true'
 
         url = ""
+        deletedImage = False
 
         if modificarFoto:
+            urlFotoPasada = get_user_data(idOperador).get('fotoUrlBase')
+            deleteFile(urlFotoPasada)
+
             if foto:
-                urlFotoPasada = get_user_data(idOperador).get('fotoUrlBase')
-                # print(urlFotoPasada)
-                deleteFile(urlFotoPasada)
                 url = 'fotos-perfil/' + foto.filename
                 postFile(foto, url)
             else: 
-                urlFotoPasada = get_user_data(idOperador).get('fotoUrlBase')
-                # print(urlFotoPasada)
-                deleteFile(urlFotoPasada)
                 post_user_config(idOperador, apodo, None)
                 url = get_user_data(idOperador).get('fotoUrlBase')
+                deletedImage = True
         else: 
             url = get_user_data(idOperador).get('fotoUrlBase')
         
-        post_user_config(idOperador, apodo, url if modificarFoto else None)
+        post_user_config(idOperador, apodo, url if modificarFoto else None, deletedFile=deletedImage)
 
 
         return make_response(jsonify({
