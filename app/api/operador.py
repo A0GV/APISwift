@@ -31,17 +31,21 @@ def update_datos_operador(idOperador):
         # Por ejemplo: update_user_data(idOperador, data)
         apodo = request.form.get('apodo')
         foto = request.files.get('foto')
-
-        if foto:
-            urlFotoPasada = get_user_data(idOperador).get('fotoUrlBase')
-            print(urlFotoPasada)
-            deleteFile(urlFotoPasada)
-            url = 'fotos-perfil/' + foto.filename
-            postFile(foto, url)
-            post_user_config(idOperador, apodo, url)
-        else: 
-            post_user_config(idOperador, apodo, None)
-            url = get_user_data(idOperador).get('fotoUrlBase')
+        modificarFoto = request.form.get('modificarFoto', 'false').lower() == 'true'
+        if modificarFoto:
+            if foto:
+                urlFotoPasada = get_user_data(idOperador).get('fotoUrlBase')
+                # print(urlFotoPasada)
+                deleteFile(urlFotoPasada)
+                url = 'fotos-perfil/' + foto.filename
+                postFile(foto, url)
+                post_user_config(idOperador, apodo, url)
+            else: 
+                urlFotoPasada = get_user_data(idOperador).get('fotoUrlBase')
+                # print(urlFotoPasada)
+                deleteFile(urlFotoPasada)
+                post_user_config(idOperador, apodo, None)
+                url = get_user_data(idOperador).get('fotoUrlBase')
 
         return make_response(jsonify({
             'mensaje':'Se actualizó el perfil',
