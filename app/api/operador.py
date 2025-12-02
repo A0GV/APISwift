@@ -32,7 +32,7 @@ def update_datos_operador(idOperador):
         modificarFoto = request.form.get('modificarFoto', 'false').lower() == 'true'
         if foto: 
             print(foto.filename)
-            
+
         url = ""
         deleteOutdatedUrl = False
 
@@ -44,9 +44,7 @@ def update_datos_operador(idOperador):
                 url = 'fotos-perfil/' + foto.filename
                 postFile(foto, url)
             else: 
-                post_user_config(idOperador, apodo, None)
-                url = get_user_data(idOperador).get('fotoUrlBase')
-                deleteOutdatedUrl = True
+                url = None
         else: 
             url = get_user_data(idOperador).get('fotoUrlBase')
         
