@@ -6,6 +6,8 @@ from ..models.roles import role_required
 
 operador_bp = Blueprint("operadores", __name__, url_prefix = "/api/operadores")
 
+@jwt_required()
+@role_required("operador")
 @operador_bp.route("/<int:idOperador>/datos", methods=['GET'])
 def get_datos_operador(idOperador):
     try:
@@ -23,6 +25,8 @@ def get_datos_operador(idOperador):
     except Exception as e:
         return make_response(jsonify({'error': str(e)}), 500)
     
+@jwt_required()
+@role_required("operador")
 @operador_bp.route("/<int:idOperador>", methods=['POST'])
 def update_datos_operador(idOperador):
     try:
@@ -35,7 +39,8 @@ def update_datos_operador(idOperador):
 
         if modificarFoto:
             urlFotoPasada = get_user_data(idOperador).get('fotoUrlBase')
-            deleteFile(urlFotoPasada)
+            if urlFotoPasada:
+                deleteFile(urlFotoPasada)
 
             if foto:
                 url = 'fotos-perfil/' + foto.filename
