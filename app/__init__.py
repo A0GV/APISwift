@@ -53,7 +53,7 @@ def create_app():
     @app.errorhandler(Exception)
     def handle_exception(e):
         return jsonify({"error": "Internal server error"}), 500
-    limiter = Limiter(get_remote_address, app=app, default_limits=["1000 per hour"])
+    # limiter = Limiter(get_remote_address, app=app, default_limits=["1000 per hour"])
     app.config['JWT_ALGORITHM'] = 'HS256'
     app.config['JWT_SECRET_KEY']= os.getenv('JWT_SECRET_KEY')
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = int(os.getenv('JWT_ACCESS_TOKEN_EXPIRES'))  # 3600 segundos (1 hora)
