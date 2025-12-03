@@ -4,6 +4,7 @@ from ..repositories.mssql.mysqlfunc import sql_read_where
 from flask_jwt_extended import jwt_required
 from ..models.roles import role_required
 from app.extensions import limiter
+from flask_limiter.errors import RateLimitExceeded
 
 solicitud_bp = Blueprint("solicitudes", __name__, url_prefix="/api/solicitud")
 
@@ -52,8 +53,14 @@ def crear_solicitud():
 @role_required("coordinador")
 def get_catalogos_sol():
     try:
+        
         catalogos = get_catalogos()
         return make_response(jsonify(catalogos))
+    except RateLimitExceeded as e:
+        return make_response(jsonify({
+            "error": "Demasiadas solicitudes",
+            "code": 429
+        }), 429)
     except Exception as e:
         return make_response(jsonify({'error': str(e)}), 500)
     

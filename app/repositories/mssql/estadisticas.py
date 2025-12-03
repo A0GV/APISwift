@@ -22,8 +22,8 @@ def get_demand_hours():
         if count <= PROMEDIO_MAX:
             return "Promedio"
         if count <= BASTANTE_MAX:
-            return "Bastante"
-        return "Mucho"
+            return "Alto"
+        return "Muy alto"
 
     try:
         try:
