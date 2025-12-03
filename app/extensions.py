@@ -19,6 +19,7 @@ class MSSqlClient:
             cursor = cnx.cursor()
             cursor.execute("SELECT 1")
             cursor.fetchone()
+            cursor.close()
         except Exception:
             return self.reconnect()
         
@@ -29,12 +30,6 @@ class MSSqlClient:
         
         if self.creds is None:
             raise RuntimeError("No se inicializó la conexión con la base de datos. Corre init_app de MSSQLconnect")
-        
-        if cnx is not None:
-            try:
-                cnx.close()
-            except Exception:
-                pass
 
         cnx = pymssql.connect(
             server=self.creds['DB_HOST'],

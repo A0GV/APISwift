@@ -8,6 +8,8 @@ traslados_bp = Blueprint("traslados", __name__, url_prefix="/api/traslados")
 
 # NO FUNCIONARÁ AHORITA PORQUE EN SWIFT, LA LLAMADA NO TIENE EL /API AL INICIO
 @traslados_bp.route("/", methods=['GET'])
+# @jwt_required()
+# @role_required("coordinador")
 def traslados():
     try:
         try:

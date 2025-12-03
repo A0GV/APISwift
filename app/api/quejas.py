@@ -43,6 +43,8 @@ def actualizar_estado():
 
 # GET catálogos para quejas (ambulancias + próximo número)
 @quejas_bp.route("/catalogos-queja", methods=['GET'])
+@jwt_required()
+@role_required("operador")
 def get_catalogos_queja():
     try:
         ambulancias = sql_read_all('Ambulancia')
@@ -57,6 +59,8 @@ def get_catalogos_queja():
 
 # POST crear queja
 @quejas_bp.route("", methods=['POST'])
+@jwt_required()
+@role_required("coordinador")
 def post_crear_queja():
     try:
         # Obtener datos del form

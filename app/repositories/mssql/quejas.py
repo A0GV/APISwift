@@ -54,7 +54,6 @@ def getQuejas():
         
         quejas = []
         for row in results:
-            print(f"\n=== Procesando queja {row['IdQueja']} ===")
             print(f"vcFoto value: {repr(row['vcFoto'])}")
             print(f"vcFoto type: {type(row['vcFoto'])}")
             

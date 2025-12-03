@@ -405,7 +405,7 @@ def sql_read_today_coordi(date):
         -- Datos de coordi 
         JOIN dbo.Usuarios u ON v.IdUsuarioCoord = u.IdUsuario
         WHERE CAST(v.dtFechaInicio AS DATE) = %s 
-            AND e.IdEstatus = 1 
+            --AND e.IdEstatus = 1 
         ORDER BY v.dtFechaInicio ASC;
         """ # Sending the %s as the date
 
