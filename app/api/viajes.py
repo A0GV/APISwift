@@ -11,7 +11,7 @@ viajes_bp = Blueprint("viajes", __name__, url_prefix="/api/viajes")
 @viajes_bp.route("/<int:idViaje>", methods=['GET'])
 @limiter.limit("5 per minute")
 @jwt_required()
-@role_required("operador")
+@role_required("coordinador")
 def get_viaje(idViaje):
     try:
         viaje = get_viaje_completo(idViaje)
