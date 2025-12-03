@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request, make_response
 from pydantic import ValidationError
 from ..repositories.mssql.traslados import get_traslados, get_tras_dias, get_tras_dias_2, sql_read_trip_details, get_estatus_tras, get_completados, sql_read_today_coordi
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from ..models.roles import role_required
 from app.extensions import limiter
 
@@ -73,6 +73,11 @@ def diaTras():
 @role_required("operador")
 def diaTras2(idOperador):
     try:
+
+        currentUser = get_jwt_identity()
+        if int(currentUser) != idOperador:
+            return make_response(jsonify({'error': 'Acceso no autorizado a los datos de otro operador'}), 403)
+        
         date = request.args.get('date')             
         ovj = get_tras_dias_2(date, idOperador)
         #Para regresar la lista aunque este vacia porque lo del operador se checa en backend no aqui

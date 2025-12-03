@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request, make_response
 from ..repositories.mssql.operador import get_user_data, post_user_config
 from ..repositories.s3.recursosS3 import getPresignedUrl, postFile, deleteFile
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from ..models.roles import role_required
 from app.extensions import limiter
 
@@ -15,6 +15,11 @@ operador_bp = Blueprint("operadores", __name__, url_prefix = "/api/operadores")
 def get_datos_operador(idOperador):
     try:
         operador_data = get_user_data(idOperador)  
+
+        currentUser = get_jwt_identity()
+        if int(currentUser) != idOperador:
+            return make_response(jsonify({'error': 'Acceso no autorizado a los datos de otro operador'}), 403)
+
         baseUrl = operador_data.pop('fotoUrlBase', None)
         if baseUrl:
             operador_data['fotoUrl'] = getPresignedUrl(baseUrl)
@@ -35,6 +40,10 @@ def get_datos_operador(idOperador):
 @role_required("operador")
 def update_datos_operador(idOperador):
     try:
+        currentUser = get_jwt_identity()
+        if int(currentUser) != idOperador:
+            return make_response(jsonify({'error': 'Acceso no autorizado a los datos de otro operador'}), 403)
+
         apodo = request.form.get('apodo')
         foto = request.files.get('foto')
         modificarFoto = request.form.get('modificarFoto', 'false').lower() == 'true'
