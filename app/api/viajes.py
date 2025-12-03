@@ -8,6 +8,8 @@ viajes_bp = Blueprint("viajes", __name__, url_prefix="/api/viajes")
 
 # GET viaje completo por ID de viaje
 @viajes_bp.route("/<int:idViaje>", methods=['GET'])
+@jwt_required()
+@role_required("operador")
 def get_viaje(idViaje):
     try:
         viaje = get_viaje_completo(idViaje)

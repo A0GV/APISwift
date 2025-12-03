@@ -49,9 +49,9 @@ def traslados():
 
 #Sacar el traslado por el dia
 #/tdia?date='2025-11-14'&&idOperador=2
+@traslados_bp.route("/tdia", methods=['GET'])
 @jwt_required()
 @role_required("operador")
-@traslados_bp.route("/tdia", methods=['GET'])
 def diaTras():
     try:
         date = request.args.get('date')             
