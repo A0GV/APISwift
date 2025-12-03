@@ -27,6 +27,8 @@ def obtener_notificaciones(idOperador):
 # GET notificaciones del coordinador
 # https://upon-quarters-feof-handbook.trycloudflare.com/api/notificaciones/coordi?limit=10
 @notificaciones_bp.route("/coordi", methods=['GET'])
+@jwt_required()
+@role_required("coordinador")
 def get_notificaciones_coordi():
     limit = request.args.get("limit", type=int)
     

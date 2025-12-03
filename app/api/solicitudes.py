@@ -44,6 +44,8 @@ def crear_solicitud():
 
 
 @solicitud_bp.route("/catalogos", methods=['GET'])
+@jwt_required()
+@role_required("coordinador")
 def get_catalogos_sol():
     try:
         catalogos = get_catalogos()
@@ -52,6 +54,8 @@ def get_catalogos_sol():
         return make_response(jsonify({'error': str(e)}), 500)
     
 @solicitud_bp.route("/socios/<int:numeroSocio>", methods=['GET'])
+@jwt_required()
+@role_required("coordinador")
 def get_socio(numeroSocio):
     try:
         socio = sql_read_where('Socios', {'IdNumeroSocio': numeroSocio})

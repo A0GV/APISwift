@@ -8,6 +8,8 @@ ambulancias_bp = Blueprint("ambulancias", __name__, url_prefix="/api/ambulancias
 
 
 @ambulancias_bp.route("/mantenimiento", methods=['GET'])
+@jwt_required()
+@role_required("coordinador")
 def dMantenimiento():
     try:
         # Llamar a la función de mysqlfunc para obtener el estado semanal de los traslados
@@ -18,6 +20,8 @@ def dMantenimiento():
 
 
 @ambulancias_bp.route("/siguiente-traslado", methods=['GET'])
+@jwt_required()
+@role_required("operador")
 def next_trip():
     id_operador = request.args.get("idOperador", type=int)
     if not id_operador:
@@ -32,6 +36,8 @@ def next_trip():
     
 # GET ambulancias disponibles (filtrando por fecha y hora específica)
 @ambulancias_bp.route("/disponibles", methods=['GET'])
+@jwt_required()
+@role_required("coordinador")
 def get_ambulancias_disponibles():
     try:
         fecha_inicio = request.args.get('fechaInicio', None)
@@ -51,6 +57,8 @@ def get_ambulancias_disponibles():
     
 # GET tipo de ambulancia por ID de ambulancia
 @ambulancias_bp.route("/<int:idAmbulancia>/tipo", methods=['GET'])
+@jwt_required()
+@role_required("coordinador")
 def get_tipo_ambulancia(idAmbulancia):
     try:
         # Llamar a la función de mysqlfunc para obtener el tipo de ambulancia
@@ -65,6 +73,8 @@ def get_tipo_ambulancia(idAmbulancia):
 
 # GET de ubicaciones probables de ambulancias activas ahorita en base al tiempo y status
 @ambulancias_bp.route("/status", methods=['GET'])
+@jwt_required()
+@role_required("coordinador")
 def ambulanciaStatus():
     IdAmbulancia = request.args.get('IdAmbulancia', type=int)
     FechaActual = request.args.get('FechaActual', type=str)

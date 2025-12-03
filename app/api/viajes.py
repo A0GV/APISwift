@@ -1,6 +1,7 @@
 from flask import Blueprint, app, jsonify, request, make_response
 from ..repositories.mssql.viajes import actualizar_viaje_completo, get_viaje_completo, sql_cancelar_viaje
-
+from flask_jwt_extended import jwt_required
+from ..models.roles import role_required
 
 viajes_bp = Blueprint("viajes", __name__, url_prefix="/api/viajes")
 
@@ -19,6 +20,8 @@ def get_viaje(idViaje):
 
 # PUT actualizar viaje completo
 @viajes_bp.route("/<int:idViaje>", methods=['PUT'])
+@jwt_required()
+@role_required("coordinador")
 def actualizar_viaje(idViaje):
     try:
         data = request.json
@@ -43,6 +46,8 @@ def actualizar_viaje(idViaje):
 
 # PUT cancelar viaje
 @viajes_bp.route("/<int:idViaje>/cancelar", methods=['PUT'])
+@jwt_required()
+@role_required("coordinador")
 def cancelar_viaje(idViaje):
     try:
         result = sql_cancelar_viaje(idViaje)

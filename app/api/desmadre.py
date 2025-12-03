@@ -15,6 +15,8 @@ def hello():
     return "Shakira rocks!\n"
 
 @main_bp.route("/horas/demanda", methods=['GET'])
+@jwt_required()
+@role_required("coordinador")
 def demand_hours():
     try:
         # Llamar a la función de mysqlfunc para obtener los horarios con mayor demanda
@@ -24,6 +26,8 @@ def demand_hours():
         return make_response(jsonify({"error": str(e)}), 500)
 
 @main_bp.route("/operador/mas-traslados", methods=['GET'])
+@jwt_required()
+@role_required("coordinador")
 def operators_most_transfers():
     try:
         # Llamar a la función de mysqlfunc para obtener los operadores con más traslados
@@ -33,6 +37,8 @@ def operators_most_transfers():
         return make_response(jsonify({"error": str(e)}), 500)
 
 @main_bp.route("/traslado/porcentajes", methods=['GET'])
+@jwt_required()
+@role_required("coordinador")
 def monthly_transfer_percentages():
     try:
         # Llamar a la función de mysqlfunc para obtener los porcentajes mensuales de traslados
@@ -42,6 +48,8 @@ def monthly_transfer_percentages():
         return make_response(jsonify({"error": str(e)}), 500)
 
 @main_bp.route("/traslado/statussemana", methods=['GET'])
+@jwt_required()
+@role_required("coordinador")
 def weekly_transfer_status():
     try:
         # Llamar a la función de mysqlfunc para obtener el estado semanal de los traslados
@@ -54,8 +62,8 @@ def weekly_transfer_status():
 # GET endpoint to just get the number of last km trip
 # Call /viaje/kmAmbPrev?IdAmbulancia=1 change the 1 tho
 @main_bp.route("/viaje/kmAmbPrev", methods=['GET'])
-# @jwt_required()
-# @role_required("operador")
+@jwt_required()
+@role_required("operador")
 def kmAmbPrev():
     IdAmbulancia = request.args.get('IdAmbulancia', type=int)
     if IdAmbulancia is None:
@@ -76,6 +84,8 @@ def kmAmbPrev():
 #   "fKmInicio": 10000
 #  }
 @main_bp.route("/viaje/iniciar", methods=['PUT'])
+@jwt_required()
+@role_required("operador")
 def iniciar_viaje():
     # Many params so extract el request
     data = request.json
@@ -97,6 +107,8 @@ def iniciar_viaje():
 
 # PUT Starts the trip by setting initial km and setting status as 2, viaje tiene q ya existir para funcionar Moni
 @main_bp.route("/viaje/finalizar", methods=['PUT'])
+@jwt_required()
+@role_required("operador")
 def finalizar_viaje():
     # Many params so extract el request
     data = request.json
@@ -173,6 +185,8 @@ def finalizar_viaje():
 
 #Enpoint para actualizar el km
 @main_bp.route("/viaje/km", methods=['PUT'])
+@jwt_required()
+@role_required("operador")
 def viajekm_update():
     d = request.json
     
