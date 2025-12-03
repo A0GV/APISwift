@@ -3,11 +3,13 @@ from ..repositories.mssql.operador import get_user_data, post_user_config
 from ..repositories.s3.recursosS3 import getPresignedUrl, postFile, deleteFile
 from flask_jwt_extended import jwt_required
 from ..models.roles import role_required
+from app.extensions import limiter
 
 operador_bp = Blueprint("operadores", __name__, url_prefix = "/api/operadores")
 
 
 @operador_bp.route("/<int:idOperador>/datos", methods=['GET'])
+@limiter.limit("5 per minute")
 @jwt_required()
 @role_required("operador")
 def get_datos_operador(idOperador):
@@ -28,6 +30,7 @@ def get_datos_operador(idOperador):
     
 
 @operador_bp.route("/<int:idOperador>", methods=['POST'])
+@limiter.limit("5 per minute")
 @jwt_required()
 @role_required("operador")
 def update_datos_operador(idOperador):

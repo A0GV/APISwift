@@ -6,15 +6,24 @@ from ..repositories.mssql.mysqlfunc import sql_read_all, sql_read_where, sql_upd
 from ..repositories.mssql.solicitudes import get_catalogos
 from flask_jwt_extended import jwt_required
 from ..models.roles import role_required
+from app.extensions import limiter
 
 main_bp = Blueprint("main", __name__)
 
 
+
 @main_bp.route("/hello")
+@limiter.limit("5 per minute")
+@limiter.limit("5 per minute")
 def hello():
     return "Shakira rocks!\n"
 
+@main_bp.route("/", methods=["GET"])
+def healthcheck():
+    return "OK", 200
+
 @main_bp.route("/horas/demanda", methods=['GET'])
+@limiter.limit("5 per minute")
 @jwt_required()
 @role_required("coordinador")
 def demand_hours():
@@ -26,6 +35,7 @@ def demand_hours():
         return make_response(jsonify({"error": str(e)}), 500)
 
 @main_bp.route("/operador/mas-traslados", methods=['GET'])
+@limiter.limit("5 per minute")
 @jwt_required()
 @role_required("coordinador")
 def operators_most_transfers():
@@ -37,6 +47,7 @@ def operators_most_transfers():
         return make_response(jsonify({"error": str(e)}), 500)
 
 @main_bp.route("/traslado/porcentajes", methods=['GET'])
+@limiter.limit("5 per minute")
 @jwt_required()
 @role_required("coordinador")
 def monthly_transfer_percentages():
@@ -48,6 +59,7 @@ def monthly_transfer_percentages():
         return make_response(jsonify({"error": str(e)}), 500)
 
 @main_bp.route("/traslado/statussemana", methods=['GET'])
+@limiter.limit("5 per minute")
 @jwt_required()
 @role_required("coordinador")
 def weekly_transfer_status():
@@ -62,6 +74,7 @@ def weekly_transfer_status():
 # GET endpoint to just get the number of last km trip
 # Call /viaje/kmAmbPrev?IdAmbulancia=1 change the 1 tho
 @main_bp.route("/viaje/kmAmbPrev", methods=['GET'])
+@limiter.limit("5 per minute")
 @jwt_required()
 @role_required("operador")
 def kmAmbPrev():
@@ -84,6 +97,7 @@ def kmAmbPrev():
 #   "fKmInicio": 10000
 #  }
 @main_bp.route("/viaje/iniciar", methods=['PUT'])
+@limiter.limit("5 per minute")
 @jwt_required()
 @role_required("operador")
 def iniciar_viaje():
@@ -107,6 +121,7 @@ def iniciar_viaje():
 
 # PUT Starts the trip by setting initial km and setting status as 2, viaje tiene q ya existir para funcionar Moni
 @main_bp.route("/viaje/finalizar", methods=['PUT'])
+@limiter.limit("5 per minute")
 @jwt_required()
 @role_required("operador")
 def finalizar_viaje():
@@ -185,6 +200,7 @@ def finalizar_viaje():
 
 #Enpoint para actualizar el km
 @main_bp.route("/viaje/km", methods=['PUT'])
+@limiter.limit("5 per minute")
 @jwt_required()
 @role_required("operador")
 def viajekm_update():

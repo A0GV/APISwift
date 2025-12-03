@@ -3,11 +3,13 @@ from ..repositories.mssql.solicitudes import get_proximo_numero_solicitud, crear
 from ..repositories.mssql.mysqlfunc import sql_read_where
 from flask_jwt_extended import jwt_required
 from ..models.roles import role_required
+from app.extensions import limiter
 
 solicitud_bp = Blueprint("solicitudes", __name__, url_prefix="/api/solicitud")
 
 # GET próximo número de solicitud
 @solicitud_bp.route("/proximo-numero", methods=['GET'])
+@limiter.limit("5 per minute")
 def get_proximo_numero():
     try:
         # Llamar a la función de mysqlfunc para obtener el próximo número
@@ -19,6 +21,7 @@ def get_proximo_numero():
 
 # POST crear solicitud (Traslado + Viaje)
 @solicitud_bp.route("/", methods=['POST'])
+@limiter.limit("5 per minute")
 def crear_solicitud():
     try:
         data = request.json
@@ -44,6 +47,7 @@ def crear_solicitud():
 
 
 @solicitud_bp.route("/catalogos", methods=['GET'])
+@limiter.limit("5 per minute")
 @jwt_required()
 @role_required("coordinador")
 def get_catalogos_sol():
@@ -54,6 +58,7 @@ def get_catalogos_sol():
         return make_response(jsonify({'error': str(e)}), 500)
     
 @solicitud_bp.route("/socios/<int:numeroSocio>", methods=['GET'])
+@limiter.limit("5 per minute")
 @jwt_required()
 @role_required("coordinador")
 def get_socio(numeroSocio):

@@ -1,5 +1,7 @@
-import pymssql 
+import pymssql
 import boto3
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 cnx = None
 
@@ -58,3 +60,6 @@ class S3Client:
         return self.s3_client
     
 s3 = S3Client()
+
+# Instancia global de limiter para importar en los endpoints
+limiter = Limiter(key_func=get_remote_address)

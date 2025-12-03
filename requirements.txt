@@ -5,3 +5,4 @@ python-dotenv==1.2.1
 pymssql==2.3.9
 pydantic==2.12.4
 boto3==1.41.5
+Flask-Limiter==4.1.0

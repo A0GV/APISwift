@@ -10,6 +10,9 @@ from app.api.quejas import quejas_bp
 from app.api.operador import operador_bp
 from app.api.solicitudes import solicitud_bp
 from app.api.viajes import viajes_bp
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from .extensions import limiter
 
 from app.extensions import db, s3
 
@@ -36,7 +39,8 @@ s3_params = {
 def create_app():
     app = Flask(__name__)
     jwt = JWTManager(app)
-
+    limiter.init_app(app)
+    # limiter = Limiter(get_remote_address, app=app, default_limits=["10 per hour"])
     app.config['JWT_ALGORITHM'] = 'HS256'
     app.config['JWT_SECRET_KEY']= os.getenv('JWT_SECRET_KEY')
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = int(os.getenv('JWT_ACCESS_TOKEN_EXPIRES'))  # 3600 segundos (1 hora)

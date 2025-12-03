@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request, make_response
 from ..repositories.mssql.mysqlfunc import sql_read_where, sql_read_where
 from flask_jwt_extended import create_access_token
 import hashlib
-
+from app.extensions import limiter
 
 login_bp = Blueprint("login", __name__, url_prefix="/api/login")
 
@@ -30,6 +30,7 @@ def verificar_password(password_plana, password_hash, salt):
 
 # ========== ENDPOINTS DE LOGIN ==========
 @login_bp.route("/operador", methods=['POST'])
+@limiter.limit("5 per minute")
 def login_operador_post():
     data = request.json
     id_usuario = data.get('idUsuario', None)
@@ -69,6 +70,7 @@ def login_operador_post():
 
 # Login para COORDINADORES (IdTipoPersonal = 2)
 @login_bp.route("/coordinador", methods=['POST'])
+@limiter.limit("5 per minute")
 def login_coordinador():
     data = request.json
     id_usuario = data.get('idUsuario', None)

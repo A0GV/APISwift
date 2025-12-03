@@ -3,11 +3,13 @@ from ..repositories.mssql.ambulancias import get_maintenance, sql_get_ambulancia
 from ..repositories.mssql.operador import sql_read_next_trip
 from flask_jwt_extended import jwt_required
 from ..models.roles import role_required
+from app.extensions import limiter
 
 ambulancias_bp = Blueprint("ambulancias", __name__, url_prefix="/api/ambulancias")
 
 
 @ambulancias_bp.route("/mantenimiento", methods=['GET'])
+@limiter.limit("5 per minute")
 @jwt_required()
 @role_required("coordinador")
 def dMantenimiento():
@@ -20,6 +22,7 @@ def dMantenimiento():
 
 
 @ambulancias_bp.route("/siguiente-traslado", methods=['GET'])
+@limiter.limit("5 per minute")
 @jwt_required()
 @role_required("operador")
 def next_trip():
@@ -36,6 +39,7 @@ def next_trip():
     
 # GET ambulancias disponibles (filtrando por fecha y hora específica)
 @ambulancias_bp.route("/disponibles", methods=['GET'])
+@limiter.limit("5 per minute")
 @jwt_required()
 @role_required("coordinador")
 def get_ambulancias_disponibles():
@@ -57,6 +61,7 @@ def get_ambulancias_disponibles():
     
 # GET tipo de ambulancia por ID de ambulancia
 @ambulancias_bp.route("/<int:idAmbulancia>/tipo", methods=['GET'])
+@limiter.limit("5 per minute")
 @jwt_required()
 @role_required("coordinador")
 def get_tipo_ambulancia(idAmbulancia):
@@ -73,6 +78,7 @@ def get_tipo_ambulancia(idAmbulancia):
 
 # GET de ubicaciones probables de ambulancias activas ahorita en base al tiempo y status
 @ambulancias_bp.route("/status", methods=['GET'])
+@limiter.limit("5 per minute")
 @jwt_required()
 @role_required("coordinador")
 def ambulanciaStatus():

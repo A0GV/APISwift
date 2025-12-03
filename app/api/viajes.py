@@ -2,12 +2,14 @@ from flask import Blueprint, app, jsonify, request, make_response
 from ..repositories.mssql.viajes import actualizar_viaje_completo, get_viaje_completo, sql_cancelar_viaje
 from flask_jwt_extended import jwt_required
 from ..models.roles import role_required
+from app.extensions import limiter
 
 viajes_bp = Blueprint("viajes", __name__, url_prefix="/api/viajes")
 
 
 # GET viaje completo por ID de viaje
 @viajes_bp.route("/<int:idViaje>", methods=['GET'])
+@limiter.limit("5 per minute")
 def get_viaje(idViaje):
     try:
         viaje = get_viaje_completo(idViaje)
@@ -20,6 +22,7 @@ def get_viaje(idViaje):
 
 # PUT actualizar viaje completo
 @viajes_bp.route("/<int:idViaje>", methods=['PUT'])
+@limiter.limit("5 per minute")
 @jwt_required()
 @role_required("coordinador")
 def actualizar_viaje(idViaje):
@@ -46,6 +49,7 @@ def actualizar_viaje(idViaje):
 
 # PUT cancelar viaje
 @viajes_bp.route("/<int:idViaje>/cancelar", methods=['PUT'])
+@limiter.limit("5 per minute")
 @jwt_required()
 @role_required("coordinador")
 def cancelar_viaje(idViaje):

@@ -2,11 +2,13 @@ from flask import Blueprint, jsonify, request, make_response
 from ..repositories.mssql.notificaciones import obtener_notificaciones_operador, obtener_notificaciones_coordi
 from flask_jwt_extended import jwt_required
 from ..models.roles import role_required
+from app.extensions import limiter
 
 notificaciones_bp = Blueprint("notificaciones", __name__, url_prefix="/api/notificaciones")
 
 # GET notificaciones del operador
 @notificaciones_bp.route("/<int:idOperador>", methods=['GET'])
+@limiter.limit("5 per minute")
 @jwt_required()
 @role_required("operador")
 def obtener_notificaciones(idOperador):
@@ -27,6 +29,7 @@ def obtener_notificaciones(idOperador):
 # GET notificaciones del coordinador
 # https://upon-quarters-feof-handbook.trycloudflare.com/api/notificaciones/coordi?limit=10
 @notificaciones_bp.route("/coordi", methods=['GET'])
+@limiter.limit("5 per minute")
 @jwt_required()
 @role_required("coordinador")
 def get_notificaciones_coordi():
