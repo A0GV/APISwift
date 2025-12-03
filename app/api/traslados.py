@@ -155,14 +155,19 @@ def get_esta_tras():
 @jwt_required()
 @role_required("coordinador")
 def viajesPrev():
-    '''date = request.args.get('date', type=str)
+    date = request.args.get('date', type=str)
+    
+    # Validación de tamaño y formato
     if date is None:
         return make_response(jsonify({"error": "date query parameter is required"}), 400)
+    if len(date) > 20:
+        return make_response(jsonify({"error": "date demasiado larga"}), 400)
+    
     try:
-        rows = home.sql_read_today_coordi(date)
+        rows = sql_read_today_coordi(date)
         return make_response(jsonify(rows))
     except Exception as e:
-        return make_response(jsonify({"error": str(e)}), 500)'''
+        return make_response(jsonify({"error": "Error interno del servidor"}), 500)
     try:
         date = request.args.get('date')             
         ovj = sql_read_today_coordi(date)

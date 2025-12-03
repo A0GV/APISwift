@@ -78,9 +78,15 @@ def weekly_transfer_status():
 @jwt_required()
 @role_required("operador")
 def kmAmbPrev():
-    IdAmbulancia = request.args.get('IdAmbulancia', type=int)
-    if IdAmbulancia is None:
+    IdAmbulancia_str = request.args.get('IdAmbulancia', type=str)
+    
+    # Validación de tamaño y tipo
+    if IdAmbulancia_str is None:
         return make_response(jsonify({"error": "IdAmbulancia query parameter is required"}), 400)
+    if not IdAmbulancia_str.isdigit() or len(IdAmbulancia_str) > 10:
+        return make_response(jsonify({"error": "IdAmbulancia inválido"}), 400)
+    
+    IdAmbulancia = int(IdAmbulancia_str)
     try:
         # Uses rows entcs como lista de diccionarios, can get full row o nomas los km como rows[0]['fKmFinal]
         rows = sql_read_last_amt_km(IdAmbulancia)

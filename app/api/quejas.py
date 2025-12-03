@@ -29,17 +29,23 @@ def obtener_quejas():
 def actualizar_estado():
     try:
         data = request.get_json()
+        if not data:
+            return make_response(jsonify({"error": "JSON inválido"}), 400)
+            
         id_queja = data.get("IdQueja")
 
+        # Validación de tamaño y tipo
         if not id_queja:
-            return make_response(jsonify({"error": "El campo 'IdQueja' es obligatorio."}), 400)
+            return make_response(jsonify({"error": "Se requiere IdQueja"}), 400)
+        if not str(id_queja).isdigit() or len(str(id_queja)) > 10:
+            return make_response(jsonify({"error": "IdQueja inválido"}), 400)
 
         updateQuejaEstado(id_queja)
 
         return make_response(jsonify({"message": "Estado actualizado correctamente."}), 200)
 
     except Exception as e:
-        return make_response(jsonify({"error": str(e)}), 500)
+        return make_response(jsonify({"error": "Error interno del servidor"}), 500)
 
 
 # GET catálogos para quejas (ambulancias + próximo número)

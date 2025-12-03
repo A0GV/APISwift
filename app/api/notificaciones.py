@@ -37,7 +37,13 @@ def obtener_notificaciones(idOperador):
 @jwt_required()
 @role_required("coordinador")
 def get_notificaciones_coordi():
-    limit = request.args.get("limit", type=int)
+    limit_str = request.args.get("limit", "")
+    
+    # Validación de tamaño y tipo
+    if limit_str and (not limit_str.isdigit() or len(limit_str) > 5):
+        return make_response(jsonify({'error': 'limit inválido'}), 400)
+    
+    limit = int(limit_str) if limit_str else None
     
     from ..models.notificaciones import NotificacionesCoordi
 

@@ -49,9 +49,17 @@ def create_app():
         response.headers.pop("Server", None)
         return response
 
-    # Seguridad OWASP: manejo de errores genéricos
+    # Seguridad OWASP: manejo específico para rate limiter
+    from flask_limiter.errors import RateLimitExceeded
+    @app.errorhandler(RateLimitExceeded)
+    def handle_rate_limit(e):
+        return jsonify({"error": "Rate limit exceeded"}), 429
+
+    # Seguridad OWASP: manejo de errores genéricos (sin divulgación de información)
     @app.errorhandler(Exception)
     def handle_exception(e):
+        # En producción, no mostrar detalles del error
+        app.logger.error(f"Error: {str(e)}")
         return jsonify({"error": "Internal server error"}), 500
     # limiter = Limiter(get_remote_address, app=app, default_limits=["1000 per hour"])
     app.config['JWT_ALGORITHM'] = 'HS256'
