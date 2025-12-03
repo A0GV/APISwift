@@ -9,7 +9,7 @@ viajes_bp = Blueprint("viajes", __name__, url_prefix="/api/viajes")
 
 # GET viaje completo por ID de viaje
 @viajes_bp.route("/<int:idViaje>", methods=['GET'])
-@limiter.limit("5 per minute")
+@limiter.limit("100 per minute")
 @jwt_required()
 @role_required("coordinador")
 def get_viaje(idViaje):
@@ -24,7 +24,7 @@ def get_viaje(idViaje):
 
 # PUT actualizar viaje completo
 @viajes_bp.route("/<int:idViaje>", methods=['PUT'])
-@limiter.limit("5 per minute")
+@limiter.limit("100 per minute")
 @jwt_required()
 @role_required("coordinador")
 def actualizar_viaje(idViaje):
@@ -51,7 +51,7 @@ def actualizar_viaje(idViaje):
 
 # PUT cancelar viaje
 @viajes_bp.route("/<int:idViaje>/cancelar", methods=['PUT'])
-@limiter.limit("5 per minute")
+@limiter.limit("100 per minute")
 @jwt_required()
 @role_required("coordinador")
 def cancelar_viaje(idViaje):

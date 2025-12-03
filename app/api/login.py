@@ -30,7 +30,7 @@ def verificar_password(password_plana, password_hash, salt):
 
 # ========== ENDPOINTS DE LOGIN ==========
 @login_bp.route("/operador", methods=['POST'])
-@limiter.limit("5 per minute")
+@limiter.limit("100 per minute")
 def login_operador_post():
     data = request.json
     id_usuario = data.get('idUsuario', None)
@@ -70,7 +70,7 @@ def login_operador_post():
 
 # Login para COORDINADORES (IdTipoPersonal = 2)
 @login_bp.route("/coordinador", methods=['POST'])
-@limiter.limit("5 per minute")
+@limiter.limit("100 per minute")
 def login_coordinador():
     data = request.json
     id_usuario = data.get('idUsuario', None)

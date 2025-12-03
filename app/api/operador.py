@@ -9,7 +9,7 @@ operador_bp = Blueprint("operadores", __name__, url_prefix = "/api/operadores")
 
 
 @operador_bp.route("/<int:idOperador>/datos", methods=['GET'])
-@limiter.limit("5 per minute")
+@limiter.limit("100 per minute")
 @jwt_required()
 @role_required("operador")
 def get_datos_operador(idOperador):
@@ -35,7 +35,7 @@ def get_datos_operador(idOperador):
     
 
 @operador_bp.route("/<int:idOperador>", methods=['POST'])
-@limiter.limit("5 per minute")
+@limiter.limit("100 per minute")
 @jwt_required()
 @role_required("operador")
 def update_datos_operador(idOperador):

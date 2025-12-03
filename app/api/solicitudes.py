@@ -10,7 +10,7 @@ solicitud_bp = Blueprint("solicitudes", __name__, url_prefix="/api/solicitud")
 
 # GET próximo número de solicitud
 @solicitud_bp.route("/proximo-numero", methods=['GET'])
-@limiter.limit("5 per minute")
+@limiter.limit("100 per minute")
 def get_proximo_numero():
     try:
         # Llamar a la función de mysqlfunc para obtener el próximo número
@@ -22,7 +22,7 @@ def get_proximo_numero():
 
 # POST crear solicitud (Traslado + Viaje)
 @solicitud_bp.route("/", methods=['POST'])
-@limiter.limit("5 per minute")
+@limiter.limit("100 per minute")
 def crear_solicitud():
     try:
         data = request.json
@@ -48,7 +48,7 @@ def crear_solicitud():
 
 
 @solicitud_bp.route("/catalogos", methods=['GET'])
-@limiter.limit("5 per minute")
+@limiter.limit("100 per minute")
 @jwt_required()
 @role_required("coordinador")
 def get_catalogos_sol():
@@ -65,7 +65,7 @@ def get_catalogos_sol():
         return make_response(jsonify({'error': str(e)}), 500)
     
 @solicitud_bp.route("/socios/<int:numeroSocio>", methods=['GET'])
-@limiter.limit("5 per minute")
+@limiter.limit("100 per minute")
 @jwt_required()
 @role_required("coordinador")
 def get_socio(numeroSocio):

@@ -9,7 +9,7 @@ traslados_bp = Blueprint("traslados", __name__, url_prefix="/api/traslados")
 
 # NO FUNCIONARÁ AHORITA PORQUE EN SWIFT, LA LLAMADA NO TIENE EL /API AL INICIO
 @traslados_bp.route("/", methods=['GET'])
-@limiter.limit("5 per minute")
+@limiter.limit("100 per minute")
 @jwt_required()
 @role_required("coordinador")
 def traslados():
@@ -52,7 +52,7 @@ def traslados():
 #Sacar el traslado por el dia
 #/tdia?date='2025-11-14'&&idOperador=2
 @traslados_bp.route("/tdia", methods=['GET'])
-@limiter.limit("5 per minute")
+@limiter.limit("100 per minute")
 @jwt_required()
 @role_required("operador")
 def diaTras():
@@ -68,7 +68,7 @@ def diaTras():
         return make_response(jsonify({'error': str(e)}), 500)
 
 @traslados_bp.route("/tdia/<int:idOperador>", methods=['GET'])
-@limiter.limit("5 per minute")
+@limiter.limit("100 per minute")
 @jwt_required()
 @role_required("operador")
 def diaTras2(idOperador):
@@ -94,7 +94,7 @@ def diaTras2(idOperador):
 # GET para los detalles de un traslado
 # Call /traslado/detallesTraslado?IdTraslado=? change the ?
 @traslados_bp.route("/detalles", methods=['GET'])
-@limiter.limit("5 per minute")
+@limiter.limit("100 per minute")
 @jwt_required()
 @role_required("operador")
 def detallesTraslado():
@@ -110,7 +110,7 @@ def detallesTraslado():
     
 #/completados?dateinicio=2025-11-01&datefinal=2025-11-18&idOperador=2
 @traslados_bp.route("/completados", methods=['GET'])
-@limiter.limit("5 per minute")
+@limiter.limit("100 per minute")
 @jwt_required()
 @role_required("operador")
 def get_completador():
@@ -136,7 +136,7 @@ def get_completador():
 
 #/estatus?date=2025-11-18&idOperador=2
 @traslados_bp.route("/estatus", methods=['GET'])
-@limiter.limit("5 per minute")
+@limiter.limit("100 per minute")
 @jwt_required()
 @role_required("operador")
 def get_esta_tras():
@@ -151,7 +151,7 @@ def get_esta_tras():
 
 # /viajesCoord?date=2025-11-28
 @traslados_bp.route("/viajesCoord", methods=['GET'])
-@limiter.limit("5 per minute")
+@limiter.limit("100 per minute")
 @jwt_required()
 @role_required("coordinador")
 def viajesPrev():

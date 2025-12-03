@@ -8,7 +8,7 @@ notificaciones_bp = Blueprint("notificaciones", __name__, url_prefix="/api/notif
 
 # GET notificaciones del operador
 @notificaciones_bp.route("/<int:idOperador>", methods=['GET'])
-@limiter.limit("5 per minute")
+@limiter.limit("100 per minute")
 @jwt_required()
 @role_required("operador")
 def obtener_notificaciones(idOperador):
@@ -33,7 +33,7 @@ def obtener_notificaciones(idOperador):
 # GET notificaciones del coordinador
 # https://upon-quarters-feof-handbook.trycloudflare.com/api/notificaciones/coordi?limit=10
 @notificaciones_bp.route("/coordi", methods=['GET'])
-@limiter.limit("5 per minute")
+@limiter.limit("100 per minute")
 @jwt_required()
 @role_required("coordinador")
 def get_notificaciones_coordi():

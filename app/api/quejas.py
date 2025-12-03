@@ -11,7 +11,7 @@ quejas_bp = Blueprint("quejas", __name__, url_prefix="/api/quejas")
 
 # GET quejas activas
 @quejas_bp.route("/obtenerquejas", methods=["GET"])
-@limiter.limit("5 per minute")
+@limiter.limit("100 per minute")
 @jwt_required()
 @role_required("coordinador")
 def obtener_quejas():
@@ -23,7 +23,7 @@ def obtener_quejas():
 
 # PUT endpoint to update the status of a complaint
 @quejas_bp.route("/actualizarEstado", methods=["PUT"])
-@limiter.limit("5 per minute")
+@limiter.limit("100 per minute")
 @jwt_required()
 @role_required("coordinador")
 def actualizar_estado():
@@ -50,7 +50,7 @@ def actualizar_estado():
 
 # GET catálogos para quejas (ambulancias + próximo número)
 @quejas_bp.route("/catalogos-queja", methods=['GET'])
-@limiter.limit("5 per minute")
+@limiter.limit("100 per minute")
 @jwt_required()
 @role_required("operador")
 def get_catalogos_queja():
@@ -67,7 +67,7 @@ def get_catalogos_queja():
 
 # POST crear queja
 @quejas_bp.route("", methods=['POST'])
-@limiter.limit("5 per minute")
+@limiter.limit("100 per minute")
 @jwt_required()
 @role_required("operador")
 def post_crear_queja():
