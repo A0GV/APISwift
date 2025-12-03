@@ -63,7 +63,7 @@ def get_catalogos_queja():
 @quejas_bp.route("", methods=['POST'])
 @limiter.limit("5 per minute")
 @jwt_required()
-@role_required("coordinador")
+@role_required("operador")
 def post_crear_queja():
     try:
         # Obtener datos del form
